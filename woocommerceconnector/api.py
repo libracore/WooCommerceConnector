@@ -51,7 +51,7 @@ def sync_woocommerce_resources():
 				make_woocommerce_log(title="sync has terminated", status="Error", method="sync_woocommerce_resources",
 					message=frappe.get_traceback(), exception=True)
 					
-	elif frappe.local.form_dict.cmd == woocommerceconnector.api.sync_woocommerce":
+	elif frappe.local.form_dict.cmd == "woocommerceconnector.api.sync_woocommerce":
 		make_woocommerce_log(
 			title="woocommerce connector is disabled",
 			status="Error",
