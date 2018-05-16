@@ -1,1 +1,1 @@
-erpnext_woocommerce.erpnext_woocommerce
+woocommerceconnector.woocommerceconnector

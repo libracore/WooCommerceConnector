@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from . import __version__ as app_version
 
-app_name = "erpnext_woocommerce"
+app_name = "woocommerceconnector"
 app_title = "ERPNext woocommerce"
 app_publisher = "Frappe Technologies Pvt. Ltd."
 app_description = "woocommerce connector for ERPNext"
@@ -16,12 +16,12 @@ fixtures = ["Custom Field"]
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/erpnext_woocommerce/css/erpnext_woocommerce.css"
-# app_include_js = "/assets/erpnext_woocommerce/js/erpnext_woocommerce.js"
+# app_include_css = "/assets/woocommerceconnector/css/woocommerceconnector.css"
+# app_include_js = "/assets/woocommerceconnector/js/woocommerceconnector.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/erpnext_woocommerce/css/erpnext_woocommerce.css"
-# web_include_js = "/assets/erpnext_woocommerce/js/erpnext_woocommerce.js"
+# web_include_css = "/assets/woocommerceconnector/css/woocommerceconnector.css"
+# web_include_js = "/assets/woocommerceconnector/js/woocommerceconnector.js"
 
 # Home Pages
 # ----------
@@ -43,14 +43,14 @@ fixtures = ["Custom Field"]
 # Installation
 # ------------
 
-# before_install = "erpnext_woocommerce.install.before_install"
-after_install = "erpnext_woocommerce.after_install.create_weight_uom"
+# before_install = "woocommerceconnector.install.before_install"
+after_install = "woocommerceconnector.after_install.create_weight_uom"
 
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "erpnext_woocommerce.notifications.get_notification_config"
+# notification_config = "woocommerceconnector.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -70,7 +70,7 @@ after_install = "erpnext_woocommerce.after_install.create_weight_uom"
 
 doc_events = {
 	"Bin": {
-		"on_update": "erpnext_woocommerce.sync_products.trigger_update_item_stock"
+		"on_update": "woocommerceconnector.sync_products.trigger_update_item_stock"
 	}
 }
 
@@ -79,19 +79,19 @@ doc_events = {
 
 scheduler_events = {
 	"hourly": [
-		"erpnext_woocommerce.api.sync_woocommerce"
+		"woocommerceconnector.api.sync_woocommerce"
 	]
 }
 
 # Testing
 # -------
 
-# before_tests = "erpnext_woocommerce.install.before_tests"
+# before_tests = "woocommerceconnector.install.before_tests"
 
 # Overriding Whitelisted Methods
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "erpnext_woocommerce.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "woocommerceconnector.event.get_events"
 # }
 

@@ -8,5 +8,5 @@
  "admin_password": "admin",
  "run_selenium_tests": 1,
  "host_name": "http://localhost:8000",
- "install_apps": ["erpnext", "erpnext_woocommerce"]
+ "install_apps": ["erpnext", "woocommerceconnector"]
 }

@@ -15,7 +15,7 @@ from frappe.utils.background_jobs import enqueue
 @frappe.whitelist()
 def sync_woocommerce():
 	"Enqueue longjob for syncing woocommerce"
-	enqueue("erpnext_woocommerce.api.sync_woocommerce_resources", queue='long', timeout=1500)
+	enqueue("woocommerceconnector.api.sync_woocommerce_resources", queue='long', timeout=1500)
 	frappe.msgprint(_("Queued for syncing. It may take a few minutes to an hour if this is your first sync."))
 
 @frappe.whitelist()
@@ -51,7 +51,7 @@ def sync_woocommerce_resources():
 				make_woocommerce_log(title="sync has terminated", status="Error", method="sync_woocommerce_resources",
 					message=frappe.get_traceback(), exception=True)
 					
-	elif frappe.local.form_dict.cmd == "erpnext_woocommerce.api.sync_woocommerce":
+	elif frappe.local.form_dict.cmd == woocommerceconnector.api.sync_woocommerce":
 		make_woocommerce_log(
 			title="woocommerce connector is disabled",
 			status="Error",

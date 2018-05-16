@@ -6,9 +6,9 @@ ERPNext woocommerce is based on the <a href="https://frappe.io">Frappe Framework
 
 To intall ERPNext woocommerce, you will have to install the <a href="https://github.com/frappe/bench">Frappe Bench</a>, the command-line, package manager and site manager for Frappe Framework. For more details, read the Bench README.
 
-After you have installed Frappe Bench, go to you bench folder, which is     `frappe.bench` by default and setup **erpnext_woocommerce**.
+After you have installed Frappe Bench, go to you bench folder, which is     `frappe.bench` by default and setup **woocommerceconnector**.
 
-    bench get-app erpnext_woocommerce {{ source_link }}
+    bench get-app woocommerceconnector {{ source_link }}
 
 Then create a new site to install the app.
 
@@ -16,9 +16,9 @@ Then create a new site to install the app.
 
 This will create a new folder in your `/sites` directory and create a new database for this site.
 
-Next, install erpnext_woocommerce in this site
+Next, install woocommerceconnector in this site
 
-    bench --site mysite install-app erpnext_woocommerce
+    bench --site mysite install-app woocommerceconnector
 
 To run this locally, run
 

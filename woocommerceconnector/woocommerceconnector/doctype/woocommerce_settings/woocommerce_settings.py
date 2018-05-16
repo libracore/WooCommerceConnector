@@ -7,8 +7,8 @@ import frappe
 from frappe import _
 import requests.exceptions
 from frappe.model.document import Document
-from erpnext_woocommerce.woocommerce_requests import get_request
-from erpnext_woocommerce.exceptions import woocommerceSetupError
+from woocommerceconnector.woocommerce_requests import get_request
+from woocommerceconnector.exceptions import woocommerceSetupError
 
 class woocommerceSettings(Document):
 	def validate(self):

@@ -1,18 +1,18 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
-frappe.provide("erpnext_woocommerce.woocommerce_settings");
+frappe.provide("woocommerceconnector.woocommerce_settings");
 
 frappe.ui.form.on("woocommerce Settings", "onload", function(frm, dt, dn){
 	frappe.call({
-		method:"erpnext_woocommerce.erpnext_woocommerce.doctype.woocommerce_settings.woocommerce_settings.get_series",
+		method:"woocommerceconnector.woocommerceconnector.doctype.woocommerce_settings.woocommerce_settings.get_series",
 		callback:function(r){
 			$.each(r.message, function(key, value){
 				set_field_options(key, value)
 			})
 		}
 	})
-	erpnext_woocommerce.woocommerce_settings.setup_queries(frm);
+	woocommerceconnector.woocommerce_settings.setup_queries(frm);
 })
 
 frappe.ui.form.on("woocommerce Settings", "app_type", function(frm, dt, dn) {
@@ -36,7 +36,7 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 
 		frm.add_custom_button(__('Sync woocommerce'), function() {
 			frappe.call({
-				method:"erpnext_woocommerce.api.sync_woocommerce",
+				method:"woocommerceconnector.api.sync_woocommerce",
 			})
 		}).addClass("btn-primary");
 	}
@@ -75,7 +75,7 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 
 
 	frappe.call({
-		method: "erpnext_woocommerce.api.get_log_status",
+		method: "woocommerceconnector.api.get_log_status",
 		callback: function(r) {
 			if(r.message){
 				frm.dashboard.set_headline_alert(r.message.text, r.message.alert_class)
@@ -86,7 +86,7 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 })
 
 
-$.extend(erpnext_woocommerce.woocommerce_settings, {
+$.extend(woocommerceconnector.woocommerce_settings, {
 	setup_queries: function(frm) {
 		frm.fields_dict["warehouse"].get_query = function(doc) {
 			return {

@@ -3,15 +3,15 @@
 
 from __future__ import unicode_literals
 import frappe
-from erpnext_woocommerce.woocommerce_requests import get_woocommerce_items
+from woocommerceconnector.woocommerce_requests import get_woocommerce_items
 from frappe.utils import cint
 from frappe import _
-from erpnext_woocommerce.exceptions import woocommerceError
+from woocommerceconnector.exceptions import woocommerceError
 import requests.exceptions
 from frappe.utils.fixtures import sync_fixtures
 
 def execute():
-	sync_fixtures("erpnext_woocommerce")
+	sync_fixtures("woocommerceconnector")
 	frappe.reload_doctype("Item")
 
 	woocommerce_settings = frappe.get_doc("woocommerce Settings")

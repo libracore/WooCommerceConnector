@@ -9,14 +9,14 @@ import frappe
 import unittest
 from frappe.utils import cint, cstr, flt
 from frappe.utils.fixtures import sync_fixtures
-from erpnext_woocommerce.sync_orders import create_order, valid_customer_and_product
-from erpnext_woocommerce.sync_products import make_item
-from erpnext_woocommerce.sync_customers import create_customer
+from woocommerceconnector.sync_orders import create_order, valid_customer_and_product
+from woocommerceconnector.sync_products import make_item
+from woocommerceconnector.sync_customers import create_customer
 
 class woocommerceSettings(unittest.TestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
-		sync_fixtures("erpnext_woocommerce")
+		sync_fixtures("woocommerceconnector")
 		frappe.reload_doctype("Customer")
 		frappe.reload_doctype("Sales Order")
 		frappe.reload_doctype("Delivery Note")

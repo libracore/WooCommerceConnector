@@ -1,4 +1,4 @@
-erpnext_woocommerce.__init__
-erpnext_woocommerce.exceptions
-erpnext_woocommerce.hooks
-erpnext_woocommerce.utils
+woocommerceconnector.__init__
+woocommerceconnector.exceptions
+woocommerceconnector.hooks
+woocommerceconnector.utils

@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-from erpnext_woocommerce.after_install import create_weight_uom
+from woocommerceconnector.after_install import create_weight_uom
 
 def execute():
 	create_weight_uom()
