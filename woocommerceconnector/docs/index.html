@@ -1,0 +1,78 @@
+<!-- title: ERPNext woocommerce: Documentation -->
+<!-- description: ERPNext woocommerce Connector -->
+<!-- no-breadcrumbs -->
+<style>
+ 
+</style>
+
+<!-- start-hero -->
+<div class="splash">
+ <div class="container">
+  <div class="col-sm-10 col-sm-offset-1">
+   <div class="jumbotron">
+    <h1>ERPNext woocommerce Connector</h1>
+    <p>Sync transactions between woocommerce and ERPNext</p>
+   </div>
+   <div class="section" style="padding-top: 0px; margin-top: -30px;">
+      <div class="fake-browser-frame">
+       <img class="img-responsive browser-image feature-image"
+              src="assets/img/home.png">
+      </div>
+   </div>
+  </div>
+ </div>
+</div>
+<!-- end-hero -->
+
+
+<div class="container">
+ <div class="col-sm-10 col-sm-offset-1">
+  <div class="section">
+      <p>ERPNext woocommerce Connector will sync data between your woocommerce and ERPNext accounts.
+<br></p>
+
+<ol>
+    <li> It will sync Products and Cutomers between woocommerce and ERPNext</li>
+    <li> It will push Orders from woocommerce to ERPNext
+        <ul>
+            <li>
+                If the Order has been paid for in woocommerce, it will create a Sales Invoice in ERPNext and record the corresponding Payment Entry
+            </li>
+            <li>
+                If the Order has been fulfilled in woocommerce, it will create a draft Delivery Note in ERPNext
+            </li>
+        </ul>
+    </li>
+</ol>
+
+  </div>
+ </div>
+</div>
+
+
+
+<div class="container">
+ <div class="col-sm-10 col-sm-offset-1">
+  <div class="section" id="install">
+    <h2>Install</h2>
+    <h4>From your site</h4>
+    <p>To install this app, login to your site and click on "Installer". Search for <b>ERPNext woocommerce</b> and click on "Install"</p>
+    <h4>Using Bench</h4>
+    <p>Go to your bench folder and setup the new app</p>
+    <pre><code class="sh">$ bench get-app erpnext_woocommerce https://github.com/frappe/erpnext_woocommerce
+$ bench new-site testsite
+$ bench --site testsite install-app erpnext_woocommerce</code></pre>
+    <p>Login to your site to configure the app.</p>
+    <p><a href="install.html">Detailed Installation Steps</a></p>
+   </div>
+   <div class="section">
+       <h2>Author</h2>
+
+       <p>Frappe Technologies Pvt. Ltd. (info@frappe.io)</p>
+   </div>
+ </div>
+</div>
+
+
+<!-- autodoc -->
+<!-- jinja -->

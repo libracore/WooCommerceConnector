@@ -1,0 +1,3 @@
+woocommerce
+frappe
+erpnext
