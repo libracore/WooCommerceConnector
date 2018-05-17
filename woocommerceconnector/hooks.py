@@ -80,7 +80,7 @@ doc_events = {
 
 scheduler_events = {
 	"hourly": [
-		"woocommerceconnector.api.sync_woocommerce"
+		"woocommerceconnector.api.check_hourly_sync"
 	]
 }
 
