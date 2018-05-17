@@ -13,6 +13,12 @@ from .utils import disable_woocommerce_sync_on_exception, make_woocommerce_log
 from frappe.utils.background_jobs import enqueue
 
 @frappe.whitelist()
+def check_hourly_sync():
+	woocommerce_settings = frappe.get_doc("woocommerce Settings")
+	if woocommerce_settings.hourly_sync == 1:
+		sync_woocommerce()
+
+@frappe.whitelist()
 def sync_woocommerce():
 	"Enqueue longjob for syncing woocommerce"
 	enqueue("woocommerceconnector.api.sync_woocommerce_resources", queue='long', timeout=1500)
