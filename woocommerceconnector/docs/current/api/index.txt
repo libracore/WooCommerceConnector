@@ -1,4 +1,0 @@
-woocommerceconnector.__init__
-woocommerceconnector.exceptions
-woocommerceconnector.hooks
-woocommerceconnector.utils

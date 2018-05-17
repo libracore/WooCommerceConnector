@@ -1,3 +1,0 @@
-woocommerceconnector.config.docs
-woocommerceconnector.config
-woocommerceconnector.config.setup
