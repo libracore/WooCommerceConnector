@@ -100,19 +100,22 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 		})
-		
-		if company:
-			so.update({
-				"company": company,
-				"status": "Draft"
-			})
+
 		so.flags.ignore_mandatory = True
-		so.save(ignore_permissions=True)
-		so.submit()
+
+		if woocommerce_order.get("status") == "on-hold":
+			so.save(ignore_permissions=True)
+		elif woocommerce_order.get("status") in ("cancelled", "refunded", "failed"):
+			so.save(ignore_permissions=True)
+			so.submit()
+			so.cancel()
+		else:
+			so.save(ignore_permissions=True)
+			so.submit()
 
 	else:
 		so = frappe.get_doc("Sales Order", so)
-		
+
 	frappe.db.commit()
 	return so
 
