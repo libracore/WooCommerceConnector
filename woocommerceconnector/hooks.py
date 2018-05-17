@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 from . import __version__ as app_version
 
 app_name = "woocommerceconnector"
-app_title = "ERPNext woocommerce"
-app_publisher = "Frappe Technologies Pvt. Ltd."
-app_description = "woocommerce connector for ERPNext"
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
-app_email = "info@frappe.io"
-app_license = "MIT"
+app_title = "WooCommerce Connector"
+app_publisher = "libracore"
+app_description = "WooCommerce Connector for ERPNext"
+app_icon = "fa fa-wordpress"
+app_color = "#bc3bff"
+app_email = "info@libracore.com"
+app_license = "AGPL"
+app_url = "https://github.com/libracore/woocommerceconnector"
 
 fixtures = ["Custom Field"]
 # Includes in <head>

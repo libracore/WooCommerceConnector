@@ -9,6 +9,6 @@ def get_data():
 			"color": "#9b5c8f",
 			"icon": "fa fa-shopping-cart",
 			"type": "module",
-			"label": _("WooCommerceConnector")
+			"label": _("WooCommerce")
 		}
 	]
