@@ -41,12 +41,6 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 		}).addClass("btn-primary");
 	}
 
-	if(!frm.doc.access_token && !frm.doc.api_key) {
-		frm.add_custom_button(__("Connect to woocommerce"),
-			function(){
-				window.open("https://apps.woocommerce.com/erpnext");
-			}).addClass("btn-primary")
-	}
 
 	frm.add_custom_button(__("woocommerce Log"), function(){
 		frappe.set_route("List", "woocommerce Log");
