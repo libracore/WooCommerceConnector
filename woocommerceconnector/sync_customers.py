@@ -22,7 +22,7 @@ def sync_woocommerce_customers(woocommerce_customer_list):
 def create_customer(woocommerce_customer, woocommerce_customer_list):
 	import frappe.utils.nestedset
 
-	make_woocommerce_log(title="create customer", status="Error", method="create_customer",
+	make_woocommerce_log(title="create customer", status="Success", method="create_customer",
 		message= "create customer",request_data=woocommerce_customer, exception=False)
 
 	woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
