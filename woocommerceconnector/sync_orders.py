@@ -6,7 +6,7 @@ from .utils import make_woocommerce_log
 from .sync_products import make_item
 from .sync_customers import create_customer
 from frappe.utils import flt, nowdate, cint
-from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer
+from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
 
 
@@ -260,3 +260,15 @@ def get_tax_account_head(tax):
 		frappe.throw("Tax Account not specified for woocommerce Tax {0}".format(tax.get("name")))
 
 	return tax_account
+
+def close_synced_woocommerce_orders():
+	for woocommerce_order in get_woocommerce_orders():
+		order_data = {
+			"status": "completed"
+		}
+		try:
+			put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
+				
+		except requests.exceptions.HTTPError, e:
+			make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
+				request_data=woocommerce_order, exception=True)
