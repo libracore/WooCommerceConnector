@@ -661,20 +661,26 @@ def update_item_stock_qty():
 def update_item_stock(item_code, woocommerce_settings, bin=None):
 	item = frappe.get_doc("Item", item_code)
 	if item.sync_qty_with_woocommerce:
-		if not bin:
-			bin = get_bin(item_code, woocommerce_settings.warehouse)
+		
+		#if not bin:
+		#	bin = get_bin(item_code, woocommerce_settings.warehouse)
+		bin = get_bin(item_code, woocommerce_settings.warehouse)
+		qty = bin.actual_qty
+		for warehouse in woocommerce_settings.warehouses:
+			bin = get_bin(item_code, warehouse.warehouse)
+			qty = qty + bin.actual_qty
 
 		if not item.woocommerce_product_id and not item.variant_of:
 			sync_item_with_woocommerce(item, woocommerce_settings.price_list, woocommerce_settings.warehouse)
 
-		if item.sync_with_woocommerce and item.woocommerce_product_id and woocommerce_settings.warehouse == bin.warehouse:
+		if item.sync_with_woocommerce and item.woocommerce_product_id: #and woocommerce_settings.warehouse == bin.warehouse:
 			if item.variant_of:
 				item_data, resource = get_product_update_dict_and_resource(frappe.get_value("Item",
 					item.variant_of, "woocommerce_product_id"), item.woocommerce_variant_id, is_variant=True,
-					actual_qty=bin.actual_qty)
+					actual_qty=qty)
 			else:
 				item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id,
-					item.woocommerce_variant_id, actual_qty=bin.actual_qty)
+					item.woocommerce_variant_id, actual_qty=qty)
 
 			try:
 				put_request(resource, item_data)
