@@ -74,8 +74,8 @@ def get_country_from_code(country_code):
 
 def create_order(woocommerce_order, woocommerce_settings, company=None):
 	so = create_sales_order(woocommerce_order, woocommerce_settings, company)
-	if woocommerce_order.get("status") == "completed" and cint(woocommerce_settings.sync_sales_invoice):
-		create_sales_invoice(woocommerce_order, woocommerce_settings, so)
+	# Not needed at the moment
+	# create_sales_invoice(woocommerce_order, woocommerce_settings, so)
 
 	#Fix this -- add shipping stuff
 	#if woocommerce_order.get("fulfillments") and cint(woocommerce_settings.sync_delivery_note):
@@ -99,6 +99,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
+			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
 		})
 
 		so.flags.ignore_mandatory = True
