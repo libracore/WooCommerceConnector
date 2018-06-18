@@ -74,8 +74,9 @@ def get_country_from_code(country_code):
 
 def create_order(woocommerce_order, woocommerce_settings, company=None):
 	so = create_sales_order(woocommerce_order, woocommerce_settings, company)
-	# Not needed at the moment
-	# create_sales_invoice(woocommerce_order, woocommerce_settings, so)
+	# check if sales invoice should be createt
+	if woocommerce_settings.sync_sales_invoice == "1":
+		create_sales_invoice(woocommerce_order, woocommerce_settings, so)
 
 	#Fix this -- add shipping stuff
 	#if woocommerce_order.get("fulfillments") and cint(woocommerce_settings.sync_delivery_note):
@@ -129,7 +130,8 @@ def create_sales_invoice(woocommerce_order, woocommerce_settings, so):
 		si.flags.ignore_mandatory = True
 		set_cost_center(si.items, woocommerce_settings.cost_center)
 		si.submit()
-		make_payament_entry_against_sales_invoice(si, woocommerce_settings)
+		if woocommerce_settings.import_payment == "1":
+			make_payament_entry_against_sales_invoice(si, woocommerce_settings)
 		frappe.db.commit()
 
 def set_cost_center(items, cost_center):
