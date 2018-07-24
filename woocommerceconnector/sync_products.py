@@ -670,8 +670,8 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
 			bin = get_bin(item_code, warehouse.warehouse)
 			qty = qty + bin.actual_qty
 
-		if not item.woocommerce_product_id and not item.variant_of:
-			sync_item_with_woocommerce(item, woocommerce_settings.price_list, woocommerce_settings.warehouse)
+		# if not item.woocommerce_product_id and not item.variant_of:
+			# sync_item_with_woocommerce(item, woocommerce_settings.price_list, woocommerce_settings.warehouse)
 
 		if item.sync_with_woocommerce and item.woocommerce_product_id: #and woocommerce_settings.warehouse == bin.warehouse:
 			if item.variant_of:

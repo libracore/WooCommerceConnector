@@ -34,14 +34,20 @@ def sync_woocommerce_orders():
 						request_data=woocommerce_order, exception=True)
 				
 def valid_customer_and_product(woocommerce_order):
-	customer_id = woocommerce_order.get("customer_id")
-	if customer_id == 0: # we are dealing with a guest customer 
-		woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
-		if not woocommerce_settings.default_customer:
-			make_woocommerce_log(title="Missing Default Customer", status="Error", method="valid_customer_and_product", message="Missing Default Customer in Woocommerce Settings",
+	warehouse = frappe.get_doc("woocommerce Settings", "woocommerce Settings").warehouse
+	for item in woocommerce_order.get("line_items"):
+		if item.get("sku"):
+			if not frappe.db.get_value("Item", {"barcode": item.get("sku")}, "item_code"):
+				make_woocommerce_log(title="Item missing in ERPNext!", status="Error", method="valid_customer_and_product", message="Item with sku {0} is missing in ERPNext! The Order {1} will not be imported! For details of order see below".format(item.get("sku"), woocommerce_order.get("id")),
+					request_data=woocommerce_order, exception=True)
+				return False
+		else:
+			make_woocommerce_log(title="Item barcode missing in WooCommerce!", status="Error", method="valid_customer_and_product", message="Item barcode is missing in WooCommerce! The Order {0} will not be imported! For details of order see below".format(woocommerce_order.get("id")),
 				request_data=woocommerce_order, exception=True)
 			return False
 	
+	customer_id = woocommerce_order.get("customer_id")
+		
 	if customer_id > 0:
 		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": customer_id}, "name", False,True):
 			woocommerce_customer = get_woocommerce_customer(customer_id)
@@ -55,21 +61,123 @@ def valid_customer_and_product(woocommerce_order):
                                 woocommerce_customer["shipping"] = woocommerce_order["shipping"]
                                 woocommerce_customer["shipping"]["country"] = get_country_from_code( woocommerce_customer.get("shipping").get("country") )
 			
-			create_customer(woocommerce_customer, woocommerce_customer_list=[])	  
+			create_customer(woocommerce_customer, woocommerce_customer_list=[])	
 
-	warehouse = frappe.get_doc("woocommerce Settings", "woocommerce Settings").warehouse
-	for item in woocommerce_order.get("line_items"):
-		if item.get("product_id") and not frappe.db.get_value("Item", {"woocommerce_product_id": item.get("product_id")}, "name"):
-			item = get_request("products/{0}".format(item.get("product_id")))["product"]
-			make_item(warehouse, item, woocommerce_item_list=[])
+	if customer_id == 0: # we are dealing with a guest customer 
+		# woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+		# if not woocommerce_settings.default_customer:
+			# make_woocommerce_log(title="Missing Default Customer", status="Error", method="valid_customer_and_product", message="Missing Default Customer in Woocommerce Settings",
+				# request_data=woocommerce_order, exception=True)
+			# return False
+		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
+			make_woocommerce_log(title="creat new customer based on guest order", status="Started", method="valid_customer_and_product", message="creat new customer based on guest order",
+				request_data=woocommerce_order, exception=False)
+			create_new_customer_of_guest(woocommerce_order)
 
 	return True
 
 def get_country_from_code(country_code):
 	return frappe.db.get_value("Country", {"code": country_code}, "name")
 
+def create_new_customer_of_guest(woocommerce_order):
+	import frappe.utils.nestedset
 
+	woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+	
+	cust_id = "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))
+	cust_info = woocommerce_order.get("billing")
+		
+	try:
+		customer = frappe.get_doc({
+			"doctype": "Customer",
+			"name": cust_id,
+			"customer_name" : "{0} {1}".format(cust_info["first_name"], cust_info["last_name"]),
+			"woocommerce_customer_id": cust_id,
+			"sync_with_woocommerce": 0,
+			"customer_group": woocommerce_settings.customer_group,
+			"territory": frappe.utils.nestedset.get_root_of("Territory"),
+			"customer_type": _("Individual")
+		})
+		customer.flags.ignore_mandatory = True
+		customer.insert()
+		
+		if customer:
+			create_customer_address(customer, woocommerce_order)
+	
+		frappe.db.commit()
+		frappe.local.form_dict.count_dict["customers"] += 1
+		make_woocommerce_log(title="create customer", status="Success", method="create_customer",
+			message= "create customer",request_data=woocommerce_order, exception=False)
+			
+	except Exception, e:
+		if e.args[0] and e.args[0].startswith("402"):
+			raise e
+		else:
+			make_woocommerce_log(title=e.message, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
+				request_data=woocommerce_order, exception=True)
+		
+def create_customer_address(customer, woocommerce_order):
+	billing_address = woocommerce_order.get("billing")
+	shipping_address = woocommerce_order.get("shipping")
+	
+	if billing_address:
+		country = get_country_name(billing_address.get("country"))
+		try :
+				frappe.get_doc({
+						"doctype": "Address",
+						"woocommerce_address_id": "Billing",
+						"address_title": customer.name,
+						"address_type": "Billing",
+						"address_line1": billing_address.get("address_1") or "Address 1",
+						"address_line2": billing_address.get("address_2"),
+						"city": billing_address.get("city") or "City",
+						"state": billing_address.get("state"),
+						"pincode": billing_address.get("postcode"),
+						"country": country,
+						"phone": billing_address.get("phone"),
+						"email_id": billing_address.get("email"),
+						"links": [{
+								"link_doctype": "Customer",
+								"link_name": customer.name
+						}]
+				}).insert()
 
+		except Exception, e:
+				make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
+						request_data=woocommerce_order, exception=True)
+
+	if shipping_address:
+		country = get_country_name(shipping_address.get("country"))
+		try :
+			frappe.get_doc({
+				"doctype": "Address",
+				"woocommerce_address_id": "Shipping",
+				"address_title": customer.name,
+				"address_type": "Shipping",
+				"address_line1": shipping_address.get("address_1") or "Address 1",
+				"address_line2": shipping_address.get("address_2"),
+				"city": shipping_address.get("city") or "City",
+				"state": shipping_address.get("province"),
+				"pincode": shipping_address.get("zip"),
+				"country": country,
+				"phone": shipping_address.get("phone"),
+				"email_id": shipping_address.get("email"),
+				"links": [{
+					"link_doctype": "Customer",
+					"link_name": customer.name
+				}]
+			}).insert()
+			
+		except Exception, e:
+			make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
+				request_data=woocommerce_order, exception=True)
+
+def get_country_name(code):
+	coutry_name = ''
+	coutry_names = """SELECT `country_name` FROM `tabCountry` WHERE `code` = '{0}'""".format(code.lower())
+	for _coutry_name in frappe.db.sql(coutry_names, as_dict=1):
+		coutry_name = _coutry_name.country_name
+	return coutry_name
 
 
 def create_order(woocommerce_order, woocommerce_settings, company=None):
@@ -84,6 +192,7 @@ def create_order(woocommerce_order, woocommerce_settings, company=None):
 
 def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 	customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_order.get("customer_id")}, "name")
+	backup_customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name")
 		
 	so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
 	if not so:
@@ -91,13 +200,13 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"doctype": "Sales Order",
 			"naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
 			"woocommerce_order_id": woocommerce_order.get("id"),
-			"customer": customer or woocommerce_settings.default_customer,
+			"customer": customer or backup_customer,
 			"delivery_date": nowdate(),
 			"company": woocommerce_settings.company,
 			"selling_price_list": woocommerce_settings.price_list,
 			"ignore_pricing_rule": 1,
 			"items": get_order_items(woocommerce_order.get("line_items"), woocommerce_settings),
-			"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
+			#"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
@@ -174,21 +283,15 @@ def get_order_items(order_items, woocommerce_settings):
 		item_code = get_item_code(woocommerce_item)
 		items.append({
 			"item_code": item_code,
-			"item_name": woocommerce_item.get("name"),
 			"rate": woocommerce_item.get("price"),
 			"delivery_date": nowdate(),
 			"qty": woocommerce_item.get("quantity"),
-			"stock_uom": woocommerce_item.get("sku"),
 			"warehouse": woocommerce_settings.warehouse
 		})
 	return items
 
 def get_item_code(woocommerce_item):
-	item_code = frappe.db.get_value("Item", {"woocommerce_variant_id": woocommerce_item.get("variation_id")}, "item_code")
-	if not item_code:
-		item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("product_id")}, "item_code")
-	#if not item_code:
-		#item_code = frappe.db.get_value("Item", {"item_name": woocommerce_item.get("title")}, "item_code")
+	item_code = frappe.db.get_value("Item", {"barcode": woocommerce_item.get("sku")}, "item_code")
 
 	return item_code
 

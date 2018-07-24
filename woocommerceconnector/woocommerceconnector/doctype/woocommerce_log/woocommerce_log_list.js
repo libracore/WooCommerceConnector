@@ -7,6 +7,8 @@ frappe.listview_settings['woocommerce Log'] = {
 			return [__("Error"), "red", "status,=,Error"];
         } else if(doc.status ==="Queued"){
 			return [__("Queued"), "orange", "status,=,Queued"];
+		} else if(doc.status ==="Started"){
+			return [__("Started"), "green", "status,=,Started"];
         }
 	}
 }
