@@ -8,6 +8,8 @@ from .sync_customers import create_customer
 from frappe.utils import flt, nowdate, cint
 from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
+import requests.exceptions
+import base64, requests, datetime, os
 
 
 def sync_orders():
@@ -213,16 +215,19 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 		})
 
 		so.flags.ignore_mandatory = True
-
-		if woocommerce_order.get("status") == "on-hold":
-			so.save(ignore_permissions=True)
-		elif woocommerce_order.get("status") in ("cancelled", "refunded", "failed"):
-			so.save(ignore_permissions=True)
-			so.submit()
-			so.cancel()
-		else:
-			so.save(ignore_permissions=True)
-			so.submit()
+		
+		# alle orders in ERP = submitted
+		so.save(ignore_permissions=True)
+		so.submit()
+		#if woocommerce_order.get("status") == "on-hold":
+		#	so.save(ignore_permissions=True)
+		#elif woocommerce_order.get("status") in ("cancelled", "refunded", "failed"):
+		#	so.save(ignore_permissions=True)
+		#	so.submit()
+		#	so.cancel()
+		#else:
+		#	so.save(ignore_permissions=True)
+		#	so.submit()
 
 	else:
 		so = frappe.get_doc("Sales Order", so)

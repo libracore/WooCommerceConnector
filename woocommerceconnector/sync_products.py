@@ -643,8 +643,8 @@ def trigger_update_item_stock(doc, method):
 
 def update_item_stock_qty():
 	woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
-	for item in frappe.get_all("Item", fields=['name', "item_code"],
-		filters={"sync_with_woocommerce": 1, "disabled": ("!=", 1), 'woocommerce_variant_id': ('!=', '')}):
+	
+	for item in frappe.get_all("Item", fields=["item_code"], filters={"sync_qty_with_woocommerce": '1', "disabled": ("!=", 1)}):
 		try:
 			update_item_stock(item.item_code, woocommerce_settings)
 		except woocommerceError, e:
@@ -673,24 +673,19 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
 		# if not item.woocommerce_product_id and not item.variant_of:
 			# sync_item_with_woocommerce(item, woocommerce_settings.price_list, woocommerce_settings.warehouse)
 
-		if item.sync_with_woocommerce and item.woocommerce_product_id: #and woocommerce_settings.warehouse == bin.warehouse:
-			if item.variant_of:
-				item_data, resource = get_product_update_dict_and_resource(frappe.get_value("Item",
-					item.variant_of, "woocommerce_product_id"), item.woocommerce_variant_id, is_variant=True,
-					actual_qty=qty)
+		if item.variant_of:
+			item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
+		else:
+			item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, actual_qty=qty)
+		try:
+			put_request(resource, item_data)
+		except requests.exceptions.HTTPError, e:
+			if e.args[0] and e.args[0].startswith("404"):
+				make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+					request_data=item_data, exception=True)
+				disable_woocommerce_sync_for_item(item)
 			else:
-				item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id,
-					item.woocommerce_variant_id, actual_qty=qty)
-
-			try:
-				put_request(resource, item_data)
-			except requests.exceptions.HTTPError, e:
-				if e.args[0] and e.args[0].startswith("404"):
-					make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
-						request_data=item_data, exception=True)
-					disable_woocommerce_sync_for_item(item)
-				else:
-					raise e
+				raise e
 
 def get_product_update_dict_and_resource(woocommerce_product_id, woocommerce_variant_id, is_variant=False, actual_qty=0):
 	
@@ -704,3 +699,19 @@ def get_product_update_dict_and_resource(woocommerce_product_id, woocommerce_var
 		resource = "products/{0}".format(woocommerce_product_id)
 	
 	return item_data, resource
+
+@frappe.whitelist()
+def add_w_id_to_erp():
+	frappe.msgprint(_("Syncing started. It may take a few minutes to an hour if this is your first sync."))
+	for woocommerce_item in get_woocommerce_items():
+		update_item = """UPDATE `tabItem`
+			SET `woocommerce_product_id` = '{0}'
+			WHERE `barcode` = '{1}'""".format(woocommerce_item.get("id"), woocommerce_item.get("sku"))
+		frappe.db.sql(update_item)
+		for woocommerce_variant in get_woocommerce_item_variants(woocommerce_item.get("id")):
+			update_variant = """UPDATE `tabItem`
+				SET `woocommerce_variant_id` = '{0}', `woocommerce_product_id` = '{1}'
+				WHERE `barcode` = '{2}'""".format(woocommerce_variant.get("id"), woocommerce_item.get("id"), woocommerce_variant.get("sku"))
+			frappe.db.sql(update_variant)
+	make_woocommerce_log(title="IDs synced", status="Success", method="add_w_id_to_erp", message={},
+		request_data={}, exception=True)

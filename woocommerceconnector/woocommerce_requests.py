@@ -134,8 +134,8 @@ def get_woocommerce_items(ignore_filter_conditions=False):
 	woocommerce_products = []
 
 	filter_condition = ''
-	if not ignore_filter_conditions:
-		filter_condition = get_filtering_condition()
+	#if not ignore_filter_conditions:
+		#filter_condition = get_filtering_condition()
 
 
 	response = get_request_request('products?per_page={0}&{1}'.format(_per_page,filter_condition) )
@@ -154,7 +154,7 @@ def get_woocommerce_item_variants(woocommerce_product_id):
 
 
 	response = get_request_request('products/{0}/variations?per_page={1}&{2}'.format(woocommerce_product_id,_per_page,filter_condition))
-        woocommerce_product_variants.extend(response.json()) 
+	woocommerce_product_variants.extend(response.json()) 
 	
 
 	for page_idx in xrange(1, int( response.headers.get('X-WP-TotalPages')) or 1):

@@ -34,15 +34,20 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 		frm.toggle_reqd("sales_invoice_series", frm.doc.sync_sales_invoice);
 		frm.toggle_reqd("delivery_note_series", frm.doc.sync_delivery_note);
 
-		frm.add_custom_button(__('Sync woocommerce'), function() {
+		frm.add_custom_button(__('Sync WooCommerce'), function() {
 			frappe.call({
 				method:"woocommerceconnector.api.sync_woocommerce",
 			})
 		}).addClass("btn-primary");
 	}
 
-
-	frm.add_custom_button(__("woocommerce Log"), function(){
+	frm.add_custom_button(__("Sync WooCommerce IDs to ERP"), function(){
+		frappe.call({
+			method:"woocommerceconnector.sync_products.add_w_id_to_erp",
+		})
+	})
+	
+	frm.add_custom_button(__("WooCommerce Log"), function(){
 		frappe.set_route("List", "woocommerce Log");
 	})
 	
