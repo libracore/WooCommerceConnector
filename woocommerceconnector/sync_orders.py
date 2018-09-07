@@ -36,6 +36,8 @@ def sync_woocommerce_orders():
 						request_data=woocommerce_order, exception=True)
 				
 def valid_customer_and_product(woocommerce_order):
+	if woocommerce_order.get("status").lower() == "cancelled":
+		return False
 	warehouse = frappe.get_doc("woocommerce Settings", "woocommerce Settings").warehouse
 	for item in woocommerce_order.get("line_items"):
 		if item.get("sku"):
@@ -374,12 +376,13 @@ def get_tax_account_head(tax):
 
 def close_synced_woocommerce_orders():
 	for woocommerce_order in get_woocommerce_orders():
-		order_data = {
-			"status": "completed"
-		}
-		try:
-			put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
-				
-		except requests.exceptions.HTTPError, e:
-			make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
-				request_data=woocommerce_order, exception=True)
+		if woocommerce_order.get("status").lower() != "cancelled":
+			order_data = {
+				"status": "completed"
+			}
+			try:
+				put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
+					
+			except requests.exceptions.HTTPError, e:
+				make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
+					request_data=woocommerce_order, exception=True)
