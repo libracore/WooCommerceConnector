@@ -691,7 +691,7 @@ def get_product_update_dict_and_resource(woocommerce_product_id, woocommerce_var
 	
 	item_data = {}
 	item_data["stock_quantity"] = "{0}".format(cint(actual_qty))
-	item_data["manage_stock"] = "True"
+	item_data["manage_stock"] = "1"
 	
 	if is_variant:
 		resource = "products/{0}/variations/{1}".format(woocommerce_product_id,woocommerce_variant_id)
