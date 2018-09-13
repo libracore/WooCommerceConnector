@@ -162,7 +162,7 @@ def create_customer_address(customer, woocommerce_order):
 				"address_line2": shipping_address.get("address_2"),
 				"city": shipping_address.get("city") or "City",
 				"state": shipping_address.get("province"),
-				"pincode": shipping_address.get("zip"),
+				"pincode": shipping_address.get("postcode"),
 				"country": country,
 				"phone": shipping_address.get("phone"),
 				"email_id": shipping_address.get("email"),
@@ -214,6 +214,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
+			"currency": woocommerce_order.get("currency")
 		})
 
 		so.flags.ignore_mandatory = True
