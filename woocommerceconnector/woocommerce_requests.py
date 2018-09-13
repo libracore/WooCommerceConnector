@@ -76,7 +76,8 @@ def put_request(path, data):
 				consumer_secret=settings['api_secret'],
 				verify_ssl=settings['verify_ssl'],
 				wp_api=True,
-				version="wc/v2"
+				version="wc/v2",
+				timeout=5000
 		)
 		
 		r = wcapi.put(path, data)
