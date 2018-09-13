@@ -214,6 +214,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
+			"currency": woocommerce_order.get("currency")
 		})
 
 		so.flags.ignore_mandatory = True
