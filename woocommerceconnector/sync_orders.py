@@ -210,7 +210,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"selling_price_list": woocommerce_settings.price_list,
 			"ignore_pricing_rule": 1,
 			"items": get_order_items(woocommerce_order.get("line_items"), woocommerce_settings),
-			#"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
+			"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
 			"apply_discount_on": "Grand Total",
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
@@ -315,7 +315,7 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
 			"charge_type": _("Actual"),
 			"account_head": get_tax_account_head(woocommerce_tax),
 			"description": "{0} - {1}%".format(name, rate),
-			#"rate": rate,
+			"rate": rate,
 			"tax_amount": flt(tax.get("tax_total") or 0) + flt(tax.get("shipping_tax_total") or 0), 
 			"included_in_print_rate": 1 if woocommerce_order.get("prices_include_tax") else 0,
 			"cost_center": woocommerce_settings.cost_center
