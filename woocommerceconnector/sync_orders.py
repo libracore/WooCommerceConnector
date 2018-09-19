@@ -210,11 +210,11 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
 	so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
 	if not so:
-        # get applicable tax rule from configuration
-        tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': woocommerce_order.get("currency")}, fields=['tax_rule'])
-        if not tax_rules:
-            # fallback: currency has no tax rule, try catch-all
-            tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': "%"}, fields=['tax_rule'])
+		# get applicable tax rule from configuration
+		tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': woocommerce_order.get("currency")}, fields=['tax_rule'])
+		if not tax_rules:
+			# fallback: currency has no tax rule, try catch-all
+			tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': "%"}, fields=['tax_rule'])
 		so = frappe.get_doc({
 			"doctype": "Sales Order",
 			"naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
@@ -230,11 +230,11 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
 			"currency": woocommerce_order.get("currency"),
-            "taxes_and_charges": tax_rules
+			"taxes_and_charges": tax_rules
 		})
 
 		so.flags.ignore_mandatory = True
-		
+
 		# alle orders in ERP = submitted
 		so.save(ignore_permissions=True)
 		so.submit()
