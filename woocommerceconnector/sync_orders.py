@@ -56,7 +56,7 @@ def valid_customer_and_product(woocommerce_order):
 	customer_id = woocommerce_order.get("customer_id")
 		
 	if customer_id > 0:
-		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": customer_id}, "name", False,True):
+		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": str(customer_id)}, "name", False,True):
 			woocommerce_customer = get_woocommerce_customer(customer_id)
 
 			#Customer may not have billing and shipping address on file, pull it from the order
@@ -77,7 +77,7 @@ def valid_customer_and_product(woocommerce_order):
 				# request_data=woocommerce_order, exception=True)
 			# return False
 		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
-			make_woocommerce_log(title="creat new customer based on guest order", status="Started", method="valid_customer_and_product", message="creat new customer based on guest order",
+			make_woocommerce_log(title="create new customer based on guest order", status="Started", method="valid_customer_and_product", message="creat new customer based on guest order",
 				request_data=woocommerce_order, exception=False)
 			create_new_customer_of_guest(woocommerce_order)
 
@@ -200,11 +200,12 @@ def create_order(woocommerce_order, woocommerce_settings, company=None):
 def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 	#customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_order.get("customer_id")}, "name")
 	#backup_customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name")
-	customer = frappe.get_all("Customer", filters: [["woocommerce_customer_id", "=", woocommerce_order.get("customer_id")]], fields=['name'])
-	backup_customer = frappe.get_all("Customer", filters: [["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
+	id = str(woocommerce_order.get("customer_id"))
+	customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", id]], fields=['name'])
+	backup_customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
 	# debug customer mismatch
 	frappe.log_error("customer_id: {id}, customer: {customer}, backup_customer: {backup_customer}\n{order}".format(
-		id=woocommerce_order.get("customer_id"), customer=customer, backup_customer=backup_customer,order=woocommerce_order))
+		id=id, customer=customer, backup_customer=backup_customer,order=woocommerce_order))
 	if customer:
 		customer = customer[0]['name']
 	elif backup_customer:
@@ -218,7 +219,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"doctype": "Sales Order",
 			"naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
 			"woocommerce_order_id": woocommerce_order.get("id"),
-			"customer": customer or backup_customer,
+			"customer": customer,
 			"delivery_date": nowdate(),
 			"company": woocommerce_settings.company,
 			"selling_price_list": woocommerce_settings.price_list,
