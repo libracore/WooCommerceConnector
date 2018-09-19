@@ -200,7 +200,10 @@ def create_order(woocommerce_order, woocommerce_settings, company=None):
 def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 	customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_order.get("customer_id")}, "name")
 	backup_customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name")
-		
+	# debug customer mismatch
+	frappe.log_error("customer_id: {id}, customer: {customer}, backup_customer: {backup_customer}\n{order}".format(
+		id=woocommerce_order.get("customer_id"), customer=customer, backup_customer=backup_customer,order=woocommerce_order))
+	
 	so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
 	if not so:
 		so = frappe.get_doc({
