@@ -215,6 +215,10 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 		if not tax_rules:
 			# fallback: currency has no tax rule, try catch-all
 			tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': "%"}, fields=['tax_rule'])
+		if tax_rules:
+			tax_rules = tax_rules[0]['tax_rule']
+		else:
+			tax_rule = ""
 		so = frappe.get_doc({
 			"doctype": "Sales Order",
 			"naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
