@@ -198,21 +198,16 @@ def create_order(woocommerce_order, woocommerce_settings, company=None):
 		#create_delivery_note(woocommerce_order, woocommerce_settings, so)
 
 def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
-	#customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_order.get("customer_id")}, "name")
-	#backup_customer = frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name")
 	id = str(woocommerce_order.get("customer_id"))
 	customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", id]], fields=['name'])
 	backup_customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
-	# debug customer mismatch
-	frappe.log_error("customer_id: {id}, customer: {customer}, backup_customer: {backup_customer}\n{order}".format(
-		id=id, customer=customer, backup_customer=backup_customer,order=woocommerce_order))
 	if customer:
 		customer = customer[0]['name']
 	elif backup_customer:
 		customer = backup_customer[0]['name']
 	else:
 		frappe.log_error("No customer found. This should never happen.")
-		
+
 	so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
 	if not so:
 		so = frappe.get_doc({
