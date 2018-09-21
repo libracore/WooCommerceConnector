@@ -121,9 +121,9 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,vari
 		"description": woocommerce_item.get("description") or woocommerce_item.get("name"),
 		"woocommerce_description": woocommerce_item.get("description") or woocommerce_item.get("name"),
 		"woocommerce_short_description": woocommerce_item.get("short_description") or woocommerce_item.get("name"),
-		"item_group": get_item_group(woocommerce_item.get("categories")),
+		# "item_group": get_item_group(woocommerce_item.get("categories")), # deactivated according to #1127
 		"has_variants": has_variant,
-		"attributes":attributes or [],
+		"attributes": attributes or [],
 		"stock_uom": woocommerce_item.get("uom") or _("Nos"),
 		"stock_keeping_unit": woocommerce_item.get("sku"), #or get_sku(woocommerce_item),
 		"default_warehouse": warehouse,
