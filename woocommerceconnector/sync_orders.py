@@ -218,7 +218,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 		if tax_rules:
 			tax_rules = tax_rules[0]['tax_rule']
 		else:
-			tax_rule = ""
+			tax_rules = ""
 		so = frappe.get_doc({
 			"doctype": "Sales Order",
 			"naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
