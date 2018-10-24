@@ -20,7 +20,7 @@ def sync_woocommerce_orders():
 	woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
 	
 	for woocommerce_order in get_woocommerce_orders():
-		if woocommerce_order.get("status").lower() != "cancelled":
+		if woocommerce_order.get("status").lower() != "cancelled" and woocommerce_order.get("status").lower() != "refunded":
 			if woocommerce_order.get("status").lower() != "on-hold":
 				so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
 				if not so:
