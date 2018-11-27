@@ -20,24 +20,23 @@ def sync_woocommerce_orders():
 	woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
 	
 	for woocommerce_order in get_woocommerce_orders():
-		if woocommerce_order.get("status").lower() != "cancelled" and woocommerce_order.get("status").lower() != "refunded":
-			if woocommerce_order.get("status").lower() != "on-hold":
-				so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
-				if not so:
-					if valid_customer_and_product(woocommerce_order):
-						try:
-							create_order(woocommerce_order, woocommerce_settings)
-							frappe.local.form_dict.count_dict["orders"] += 1
+		if woocommerce_order.get("status").lower() == "processing":
+			so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
+			if not so:
+				if valid_customer_and_product(woocommerce_order):
+					try:
+						create_order(woocommerce_order, woocommerce_settings)
+						frappe.local.form_dict.count_dict["orders"] += 1
 
-						except woocommerceError, e:
-							make_woocommerce_log(status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
+					except woocommerceError, e:
+						make_woocommerce_log(status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
+							request_data=woocommerce_order, exception=True)
+					except Exception, e:
+						if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
+							raise e
+						else:
+							make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
 								request_data=woocommerce_order, exception=True)
-						except Exception, e:
-							if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
-								raise e
-							else:
-								make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
-									request_data=woocommerce_order, exception=True)
 				
 def valid_customer_and_product(woocommerce_order):
 	if woocommerce_order.get("status").lower() == "cancelled":
