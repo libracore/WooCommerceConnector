@@ -42,7 +42,7 @@ def sync_woocommerce_resources():
 			#sync_products(woocommerce_settings.price_list, woocommerce_settings.warehouse)
 			sync_customers()
 			sync_orders()
-			close_synced_woocommerce_orders()
+			# close_synced_woocommerce_orders() # DO NOT GLOBALLY CLOSE
 			update_item_stock_qty()
 			#frappe.db.set_value("woocommerce Settings", None, "last_sync_datetime", now_time)
 			
