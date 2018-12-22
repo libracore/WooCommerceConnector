@@ -39,14 +39,14 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 				method:"woocommerceconnector.api.sync_woocommerce",
 			})
 		}).addClass("btn-primary");
+		
+		frm.add_custom_button(__("Sync WooCommerce IDs to ERP"), function(){
+			frappe.call({
+				method:"woocommerceconnector.api.sync_woocommerce_ids",
+			})
+	    })
 	}
 
-	frm.add_custom_button(__("Sync WooCommerce IDs to ERP"), function(){
-		frappe.call({
-			method:"woocommerceconnector.sync_products.add_w_id_to_erp",
-		})
-	})
-	
 	frm.add_custom_button(__("WooCommerce Log"), function(){
 		frappe.set_route("List", "woocommerce Log");
 	})

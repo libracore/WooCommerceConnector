@@ -101,3 +101,8 @@ def get_log_status():
 			"alert_class": alert_class
 		}
 		
+@frappe.whitelist()
+def sync_woocommerce_ids():
+	"Enqueue longjob for syncing woocommerce"
+	enqueue("woocommerceconnector.sync_products.add_w_id_to_erp", queue='long', timeout=1500)
+	frappe.msgprint(_("Queued for syncing. It may take a few minutes to an hour if this is your first sync."))
