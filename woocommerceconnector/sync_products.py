@@ -642,7 +642,7 @@ def update_item_stock_qty():
 def update_item_stock(item_code, woocommerce_settings, bin=None):
     item = frappe.get_doc("Item", item_code)
     if item.sync_qty_with_woocommerce:
-        if not item.woocommerce_product_id
+        if not item.woocommerce_product_id:
             make_woocommerce_log(title="WooCommerce ID missing", status="Error", method="sync_woocommerce_items", 
                 message="Please sync WooCommerce IDs to ERP (missing for item {0})".format(item_code), request_data=item_data, exception=True)
         else:
