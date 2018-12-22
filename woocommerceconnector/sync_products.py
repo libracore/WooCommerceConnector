@@ -701,12 +701,16 @@ def add_w_id_to_erp():
     #            erp_variant.woocommerce_variant_id = woocommerce_variant.get("id")
     #            erp_variant.save()
     #            frappe.db.commit()
-    for woocommerce_item in get_woocommerce_items():
+    woo_items = get_woocommerce_items()
+    make_woocommerce_log(title="Syncing IDs", status="Started", method="add_w_id_to_erp", message={'Items': woo_items},
+        request_data={}, exception=True)	
+    for woocommerce_item in woo_items:
         update_item = """UPDATE `tabItem`
             SET `woocommerce_product_id` = '{0}'
             WHERE `barcode` = '{1}'""".format(woocommerce_item.get("id"), woocommerce_item.get("sku"))
         frappe.db.sql(update_item)
         for woocommerce_variant in get_woocommerce_item_variants(woocommerce_item.get("id")):
+            frappe.log_error("WooVariant: {0} ({1})".format(woocommerce_variant, woocommerce_variant.get("sku")))
             update_variant = """UPDATE `tabItem`
                 SET `woocommerce_variant_id` = '{0}', `woocommerce_product_id` = '{1}'
                 WHERE `barcode` = '{2}'""".format(woocommerce_variant.get("id"), woocommerce_item.get("id"), woocommerce_variant.get("sku"))
