@@ -642,34 +642,33 @@ def update_item_stock_qty():
 def update_item_stock(item_code, woocommerce_settings, bin=None):
     item = frappe.get_doc("Item", item_code)
     if item.sync_qty_with_woocommerce:
-        
-        #if not bin:
-        #    bin = get_bin(item_code, woocommerce_settings.warehouse)
-        bin = get_bin(item_code, woocommerce_settings.warehouse)
-        qty = bin.actual_qty
-        for warehouse in woocommerce_settings.warehouses:
-            bin = get_bin(item_code, warehouse.warehouse)
-            qty = qty + bin.actual_qty
-
-        # if not item.woocommerce_product_id and not item.variant_of:
-            # sync_item_with_woocommerce(item, woocommerce_settings.price_list, woocommerce_settings.warehouse)
-
-        if item.variant_of:
-            item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
+        if not item.woocommerce_product_id
+            make_woocommerce_log(title="WooCommerce ID missing", status="Error", method="sync_woocommerce_items", 
+                message="Please sync WooCommerce IDs to ERP (missing for item {0})".format(item_code), request_data=item_data, exception=True)
         else:
-            item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, actual_qty=qty)
-        try:
-            put_request(resource, item_data)
-        except requests.exceptions.HTTPError, e:
-            if e.args[0] and e.args[0].startswith("404"):
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
-                    request_data=item_data, exception=True)
-                disable_woocommerce_sync_for_item(item)
+            #if not bin:
+            #    bin = get_bin(item_code, woocommerce_settings.warehouse)
+            bin = get_bin(item_code, woocommerce_settings.warehouse)
+            qty = bin.actual_qty
+            for warehouse in woocommerce_settings.warehouses:
+                bin = get_bin(item_code, warehouse.warehouse)
+                qty = qty + bin.actual_qty
+
+            if item.variant_of:
+                item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
             else:
-                raise e
+                item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, actual_qty=qty)
+            try:
+                put_request(resource, item_data)
+            except requests.exceptions.HTTPError, e:
+                if e.args[0] and e.args[0].startswith("404"):
+                    make_woocommerce_log(title=e.message, status="Error", method="update_item_stock", message=frappe.get_traceback(),
+                        request_data=item_data, exception=True)
+                    disable_woocommerce_sync_for_item(item)
+                else:
+                    raise e
 
 def get_product_update_dict_and_resource(woocommerce_product_id, woocommerce_variant_id, is_variant=False, actual_qty=0):
-    
     item_data = {}
     item_data["stock_quantity"] = "{0}".format(cint(actual_qty))
     item_data["manage_stock"] = "1"
