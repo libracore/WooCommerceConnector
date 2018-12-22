@@ -364,7 +364,7 @@ def sync_item_with_woocommerce(item, price_list, warehouse):
     item_data = {
             "name": item.get("item_name"),
             "description": item.get("woocommerce_description") or item.get("web_long_description") or item.get("description"),
-            "short_description": item.get("woocommerce_description") or item.get("web_long_description") or item.get("description")
+            "short_description": item.get("woocommerce_description") or item.get("web_long_description") or item.get("description"),
             "categories" : [],
             "images": []
     }
