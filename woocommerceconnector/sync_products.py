@@ -646,19 +646,18 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
             make_woocommerce_log(title="WooCommerce ID missing", status="Error", method="sync_woocommerce_items", 
                 message="Please sync WooCommerce IDs to ERP (missing for item {0})".format(item_code), request_data=item_data, exception=True)
         else:
-            #if not bin:
-            #    bin = get_bin(item_code, woocommerce_settings.warehouse)
             bin = get_bin(item_code, woocommerce_settings.warehouse)
             qty = bin.actual_qty
             for warehouse in woocommerce_settings.warehouses:
-                bin = get_bin(item_code, warehouse.warehouse)
-                qty = qty + bin.actual_qty
+                _bin = get_bin(item_code, warehouse.warehouse)
+                qty += _bin.actual_qty
 
             if item.variant_of:
                 item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
             else:
                 item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, actual_qty=qty)
             try:
+                #make_woocommerce_log(title="Update stock of {0}".format(item.barcode), status="Started", method="update_item_stock", message="Resource: {0}, data: {1}".format(resource, item_data))
                 put_request(resource, item_data)
             except requests.exceptions.HTTPError, e:
                 if e.args[0] and e.args[0].startswith("404"):
