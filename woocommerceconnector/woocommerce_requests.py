@@ -81,7 +81,7 @@ def put_request(path, data):
 				version="wc/v2",
 				timeout=5000
 		)
-		
+		#frappe.log_error("{0} data: {1}".format(path, str(data)))
 		r = wcapi.put(path, data)
 		
 		r.raise_for_status()

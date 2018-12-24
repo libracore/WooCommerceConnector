@@ -644,7 +644,7 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
     if item.sync_qty_with_woocommerce:
         if not item.woocommerce_product_id:
             make_woocommerce_log(title="WooCommerce ID missing", status="Error", method="sync_woocommerce_items", 
-                message="Please sync WooCommerce IDs to ERP (missing for item {0})".format(item_code), request_data=item_data, exception=True)
+                message="Please sync WooCommerce IDs to ERP (missing for item {0})".format(item_code), request_data=item_code, exception=True)
         else:
             bin = get_bin(item_code, woocommerce_settings.warehouse)
             qty = bin.actual_qty
@@ -680,6 +680,13 @@ def get_product_update_dict_and_resource(woocommerce_product_id, woocommerce_var
     return item_data, resource
 
 def add_w_id_to_erp():
+    # purge WooCommerce IDs so that there cannot be any conflict
+    purge_ids = """UPDATE `tabItem`
+            SET `woocommerce_product_id` = NULL, `woocommerce_variant_id` = NULL;"""
+    frappe.db.sql(purge_ids)
+    frappe.db.commit()
+
+    # loop through all items on WooCommerce and get their IDs (matched by barcode)
     woo_items = get_woocommerce_items()
     make_woocommerce_log(title="Syncing IDs", status="Started", method="add_w_id_to_erp", message='Item: {0}'.format(woo_items),
         request_data={}, exception=True)
