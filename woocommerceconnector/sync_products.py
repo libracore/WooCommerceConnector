@@ -652,7 +652,8 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
                 _bin = get_bin(item_code, warehouse.warehouse)
                 qty += _bin.actual_qty
 
-            if item.variant_of:
+            # bugfix #1582: variant control from WooCommerce, not ERPNext
+            if item.woocommerce_variant_id > 0:
                 item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
             else:
                 item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, actual_qty=qty)
