@@ -232,8 +232,9 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 			"ignore_pricing_rule": 1,
 			"items": get_order_items(woocommerce_order.get("line_items"), woocommerce_settings),
 			"taxes": get_order_taxes(woocommerce_order, woocommerce_settings),
-			"apply_discount_on": "Net Total",
-			"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
+			# disabled discount as WooCommerce will send this both in the item rate and as discount
+			#"apply_discount_on": "Net Total",
+			#"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
 			"woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
 			"currency": woocommerce_order.get("currency"),
 			"taxes_and_charges": tax_rules
