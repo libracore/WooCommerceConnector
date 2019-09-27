@@ -1,3 +1,2 @@
 woocommerce
 frappe
-erpnext
