@@ -21,7 +21,7 @@ def execute():
 	try:
 		woocommerce_items = get_item_list()
 	except woocommerceError:
-		print "Could not run woocommerce patch 'set_variant_id' for site: {0}".format(frappe.local.site)
+		print("Could not run woocommerce patch 'set_variant_id' for site: {0}".format(frappe.local.site))
 		return
 
 	if woocommerce_settings.woocommerce_url and woocommerce_items:

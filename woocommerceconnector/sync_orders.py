@@ -23,10 +23,10 @@ def sync_woocommerce_orders():
 				create_order(woocommerce_order, woocommerce_settings)
 				frappe.local.form_dict.count_dict["orders"] += 1
 
-			except woocommerceError, e:
+			except woocommerceError as e:
 				make_woocommerce_log(status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
 					request_data=woocommerce_order, exception=True)
-			except Exception, e:
+			except Exception as e:
 				if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
 					raise e
 				else:
@@ -272,6 +272,6 @@ def close_synced_woocommerce_orders():
 		try:
 			put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
 				
-		except requests.exceptions.HTTPError, e:
+		except requests.exceptions.HTTPError as e:
 			make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
 				request_data=woocommerce_order, exception=True)

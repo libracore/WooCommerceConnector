@@ -16,7 +16,7 @@ def sync_woocommerce_customers(woocommerce_customer_list):
 	for woocommerce_customer in get_woocommerce_customers():
 		if not frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_customer.get('id')}, "name"):
 			#only synch customers with address
-			if woocommerce_customer.get("billing").get("address_1") <> "" and woocommerce_customer.get("shipping").get("address_1")<>"":
+			if woocommerce_customer.get("billing").get("address_1") != "" and woocommerce_customer.get("shipping").get("address_1") != "":
 				create_customer(woocommerce_customer, woocommerce_customer_list)
 
 def create_customer(woocommerce_customer, woocommerce_customer_list):
@@ -52,7 +52,7 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
 		woocommerce_customer_list.append(woocommerce_customer.get("id"))
 		frappe.db.commit()
 			
-	except Exception, e:
+	except Exception as e:
 		if e.args[0] and e.args[0].startswith("402"):
 			raise e
 		else:
@@ -84,7 +84,7 @@ def create_customer_address(customer, woocommerce_customer):
                                 }]
                         }).insert()
 
-                except Exception, e:
+                except Exception as e:
                         make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                                 request_data=woocommerce_customer, exception=True)
 
@@ -109,7 +109,7 @@ def create_customer_address(customer, woocommerce_customer):
 				}]
 			}).insert()
 			
-		except Exception, e:
+		except Exception as e:
 			make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
 				request_data=woocommerce_customer, exception=True)
 		
@@ -145,7 +145,7 @@ def sync_erpnext_customers(woocommerce_customer_list):
 			
 			frappe.local.form_dict.count_dict["customers"] += 1
 			frappe.db.commit()
-		except Exception, e:
+		except Exception as e:
 			make_woocommerce_log(title=e.message, status="Error", method="sync_erpnext_customers", message=frappe.get_traceback(),
 				request_data=customer, exception=True)
 
@@ -194,7 +194,7 @@ def update_customer_to_woocommerce(customer, last_sync_datetime):
 			{ "customer": woocommerce_customer})
 		update_address_details(customer, last_sync_datetime)
 		
-	except requests.exceptions.HTTPError, e:
+	except requests.exceptions.HTTPError as e:
 		if e.args[0] and e.args[0].startswith("404"):
 			customer = frappe.get_doc("Customer", customer.name)
 			customer.woocommerce_customer_id = ""
