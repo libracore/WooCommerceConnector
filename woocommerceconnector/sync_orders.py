@@ -66,9 +66,9 @@ def valid_customer_and_product(woocommerce_order):
                 woocommerce_customer["billing"] = woocommerce_order["billing"]
                 woocommerce_customer["billing"]["country"] = get_country_from_code( woocommerce_customer.get("billing").get("country") )
 
-                        if woocommerce_customer["shipping"].get("address_1") == "":
-                                woocommerce_customer["shipping"] = woocommerce_order["shipping"]
-                                woocommerce_customer["shipping"]["country"] = get_country_from_code( woocommerce_customer.get("shipping").get("country") )
+                if woocommerce_customer["shipping"].get("address_1") == "":
+                    woocommerce_customer["shipping"] = woocommerce_order["shipping"]
+                    woocommerce_customer["shipping"]["country"] = get_country_from_code( woocommerce_customer.get("shipping").get("country") )
             
             create_customer(woocommerce_customer, woocommerce_customer_list=[])    
 
@@ -118,7 +118,7 @@ def create_new_customer_of_guest(woocommerce_order):
         make_woocommerce_log(title="create customer", status="Success", method="create_customer",
             message= "create customer",request_data=woocommerce_order, exception=False)
             
-    except Exception, e:
+    except Exception as e:
         if e.args[0] and e.args[0].startswith("402"):
             raise e
         else:
@@ -151,7 +151,7 @@ def create_customer_address(customer, woocommerce_order):
                         }]
                 }).insert()
 
-        except Exception, e:
+        except Exception as e:
                 make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
                         request_data=woocommerce_order, exception=True)
 
@@ -177,7 +177,7 @@ def create_customer_address(customer, woocommerce_order):
                 }]
             }).insert()
             
-        except Exception, e:
+        except Exception as e:
             make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
                 request_data=woocommerce_order, exception=True)
 

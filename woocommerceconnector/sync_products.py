@@ -396,7 +396,7 @@ def sync_item_with_woocommerce(item, price_list, warehouse):
         try:
             put_request("products/{0}".format(item.get("woocommerce_product_id")), item_data)
             
-        except requests.exceptions.HTTPError, e:
+        except requests.exceptions.HTTPError as e:
             if e.args[0] and e.args[0].startswith("404"):
                 if frappe.db.get_value("woocommerce Settings", "woocommerce Settings", "if_not_exists_create_item_to_woocommerce"):
                     item_data["id"] = ''
