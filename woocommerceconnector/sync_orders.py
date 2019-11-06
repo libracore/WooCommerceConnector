@@ -4,7 +4,7 @@ from frappe import _
 from .exceptions import woocommerceError
 from .utils import make_woocommerce_log
 from .sync_products import make_item
-from .sync_customers import create_customer
+from .sync_customers import create_customer, create_customer_address, create_customer_contact
 from frappe.utils import flt, nowdate, cint
 from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
@@ -70,7 +70,7 @@ def valid_customer_and_product(woocommerce_order):
                     woocommerce_customer["shipping"] = woocommerce_order["shipping"]
                     woocommerce_customer["shipping"]["country"] = get_country_from_code( woocommerce_customer.get("shipping").get("country") )
             
-            create_customer(woocommerce_customer, woocommerce_customer_list=[])    
+            create_customer(woocommerce_customer, woocommerce_customer_list=[])
 
     if customer_id == 0: # we are dealing with a guest customer 
         # woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
@@ -112,6 +112,7 @@ def create_new_customer_of_guest(woocommerce_order):
         
         if customer:
             create_customer_address(customer, woocommerce_order)
+            create_customer_contact(customer, woocommerce_order)
     
         frappe.db.commit()
         frappe.local.form_dict.count_dict["customers"] += 1
@@ -125,62 +126,6 @@ def create_new_customer_of_guest(woocommerce_order):
             make_woocommerce_log(title=e.message, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
                 request_data=woocommerce_order, exception=True)
         
-def create_customer_address(customer, woocommerce_order):
-    billing_address = woocommerce_order.get("billing")
-    shipping_address = woocommerce_order.get("shipping")
-    
-    if billing_address:
-        country = get_country_name(billing_address.get("country"))
-        try :
-                frappe.get_doc({
-                        "doctype": "Address",
-                        "woocommerce_address_id": "Billing",
-                        "address_title": customer.name,
-                        "address_type": "Billing",
-                        "address_line1": billing_address.get("address_1") or "Address 1",
-                        "address_line2": billing_address.get("address_2"),
-                        "city": billing_address.get("city") or "City",
-                        "state": billing_address.get("state"),
-                        "pincode": billing_address.get("postcode"),
-                        "country": country,
-                        "phone": billing_address.get("phone"),
-                        "email_id": billing_address.get("email"),
-                        "links": [{
-                                "link_doctype": "Customer",
-                                "link_name": customer.name
-                        }]
-                }).insert()
-
-        except Exception as e:
-                make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
-                        request_data=woocommerce_order, exception=True)
-
-    if shipping_address:
-        country = get_country_name(shipping_address.get("country"))
-        try :
-            frappe.get_doc({
-                "doctype": "Address",
-                "woocommerce_address_id": "Shipping",
-                "address_title": customer.name,
-                "address_type": "Shipping",
-                "address_line1": shipping_address.get("address_1") or "Address 1",
-                "address_line2": shipping_address.get("address_2"),
-                "city": shipping_address.get("city") or "City",
-                "state": shipping_address.get("province"),
-                "pincode": shipping_address.get("postcode"),
-                "country": country,
-                "phone": shipping_address.get("phone"),
-                "email_id": shipping_address.get("email"),
-                "links": [{
-                    "link_doctype": "Customer",
-                    "link_name": customer.name
-                }]
-            }).insert()
-            
-        except Exception as e:
-            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address based on Guest Order", message=frappe.get_traceback(),
-                request_data=woocommerce_order, exception=True)
-
 def get_country_name(code):
     coutry_name = ''
     coutry_names = """SELECT `country_name` FROM `tabCountry` WHERE `code` = '{0}'""".format(code.lower())
@@ -226,6 +171,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
             "woocommerce_order_id": woocommerce_order.get("id"),
             "customer": customer,
+            "customer_group": woocommerce_settings.customer_group,  # hard code group, as this was missing since v12
             "delivery_date": nowdate(),
             "company": woocommerce_settings.company,
             "selling_price_list": woocommerce_settings.price_list,
