@@ -33,15 +33,20 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         else woocommerce_customer.get("email")
         
     try:
+		# try to match territory
+		country_name = get_country_name(woocommerce_customer.get("country"))
+		if frappe.db.exists("Territory", country_name):
+			territory = country_name
+		else:
+			territory = frappe.utils.nestedset.get_root_of("Territory")
         customer = frappe.get_doc({
             "doctype": "Customer",
-
             "name": woocommerce_customer.get("id"),
             "customer_name" : cust_name,
             "woocommerce_customer_id": woocommerce_customer.get("id"),
             "sync_with_woocommerce": 0,
             "customer_group": woocommerce_settings.customer_group,
-            "territory": frappe.utils.nestedset.get_root_of("Territory"),
+            "territory": territory,
             "customer_type": _("Individual")
         })
         customer.flags.ignore_mandatory = True
@@ -49,6 +54,7 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         
         if customer:
             create_customer_address(customer, woocommerce_customer)
+            create_customer_contact(customer, woocommerce_customer)
     
         woocommerce_customer_list.append(woocommerce_customer.get("id"))
         frappe.db.commit()
@@ -69,28 +75,72 @@ def create_customer_address(customer, woocommerce_customer):
     if billing_address:
         country = get_country_name(billing_address.get("country"))
         try :
-                frappe.get_doc({
-                        "doctype": "Address",
-                        "woocommerce_address_id": "Billing",
-                        "address_title": customer.name,
-                        "address_type": "Billing",
-                        "address_line1": billing_address.get("address_1") or "Address 1",
-                        "address_line2": billing_address.get("address_2"),
-                        "city": billing_address.get("city") or "City",
-                        "state": billing_address.get("state"),
-                        "pincode": billing_address.get("postcode"),
-                        "country": country,
-                        "phone": billing_address.get("phone"),
-                        "email_id": billing_address.get("email"),
-                        "links": [{
-                                "link_doctype": "Customer",
-                                "link_name": customer.name
-                        }]
-                }).insert()
+			frappe.get_doc({
+				"doctype": "Address",
+				"woocommerce_address_id": "Billing",
+				"address_title": customer.name,
+				"address_type": "Billing",
+				"address_line1": billing_address.get("address_1") or "Address 1",
+				"address_line2": billing_address.get("address_2"),
+				"city": billing_address.get("city") or "City",
+				"state": billing_address.get("state"),
+				"pincode": billing_address.get("postcode"),
+				"country": country,
+				"phone": billing_address.get("phone"),
+				"email_id": billing_address.get("email"),
+				"links": [{
+					"link_doctype": "Customer",
+					"link_name": customer.name
+				}]
+			}).insert()
 
         except Exception as e:
-                make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
-                        request_data=woocommerce_customer, exception=True)
+			make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+					request_data=woocommerce_customer, exception=True)
+
+    if shipping_address:
+        country = get_country_name(shipping_address.get("country"))
+        try :
+            frappe.get_doc({
+                "doctype": "Address",
+                "woocommerce_address_id": "Shipping",
+                "address_title": customer.name,
+                "address_type": "Shipping",
+                "address_line1": shipping_address.get("address_1") or "Address 1",
+                "address_line2": shipping_address.get("address_2"),
+                "city": shipping_address.get("city") or "City",
+                "state": shipping_address.get("province"),
+                "pincode": shipping_address.get("zip"),
+                "country": country,
+                "phone": shipping_address.get("phone"),
+                "email_id": shipping_address.get("email"),
+                "links": [{
+                    "link_doctype": "Customer",
+                    "link_name": customer.name
+                }]
+            }).insert()
+            
+        except Exception as e:
+            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+                request_data=woocommerce_customer, exception=True)
+
+def create_customer_contact(customer, woocommerce_customer):
+	try :
+		frappe.get_doc({
+			"doctype": "Contact",
+			"first_name": woocommerce_customer.get("first_name"),
+			"last_name": woocommerce_customer.get("last_name"),
+			"email_id": woocommerce_customer.get("email"),
+			"phone": woocommerce_customer.get("phone"),
+			"links": [{
+				"link_doctype": "Customer",
+				"link_name": customer.name
+			}]
+		}).insert()
+
+	except Exception as e:
+		make_woocommerce_log(title=e.message, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
+				request_data=woocommerce_customer, exception=True)
 
     if shipping_address:
         country = get_country_name(shipping_address.get("country"))
