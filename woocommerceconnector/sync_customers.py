@@ -109,8 +109,8 @@ def create_customer_address(customer, woocommerce_customer):
                 "address_line1": shipping_address.get("address_1") or "Address 1",
                 "address_line2": shipping_address.get("address_2"),
                 "city": shipping_address.get("city") or "City",
-                "state": shipping_address.get("province"),
-                "pincode": shipping_address.get("zip"),
+                "state": shipping_address.get("state"),
+                "pincode": shipping_address.get("postcode"),
                 "country": country,
                 "phone": shipping_address.get("phone"),
                 "email_id": shipping_address.get("email"),
@@ -128,10 +128,10 @@ def create_customer_contact(customer, woocommerce_customer):
     try :
         frappe.get_doc({
             "doctype": "Contact",
-            "first_name": woocommerce_customer.get("first_name"),
-            "last_name": woocommerce_customer.get("last_name"),
-            "email_id": woocommerce_customer.get("email"),
-            "phone": woocommerce_customer.get("phone"),
+            "first_name": woocommerce_customer["blling"]["first_name"],
+            "last_name": woocommerce_customer["blling"]["last_name"],
+            "email_id": woocommerce_customer["blling"]["email"],
+            "phone": woocommerce_customer["blling"]["phone"],
             "links": [{
                 "link_doctype": "Customer",
                 "link_name": customer.name
