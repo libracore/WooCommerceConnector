@@ -205,6 +205,8 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
         so = frappe.get_doc("Sales Order", so)
 
     frappe.db.commit()
+    make_woocommerce_log(title="create sales order", status="Success", method="create_sales_order",
+            message= "create sales_order",request_data=woocommerce_order, exception=False)
     return so
 
 def create_sales_invoice(woocommerce_order, woocommerce_settings, so):
