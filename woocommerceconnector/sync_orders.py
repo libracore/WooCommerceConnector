@@ -55,7 +55,10 @@ def valid_customer_and_product(woocommerce_order):
                 request_data=woocommerce_order, exception=True)
             return False
     
-    customer_id = woocommerce_order.get("customer_id")
+    try:
+        customer_id = int(woocommerce_order.get("customer_id"))
+    except:
+        customer_id = 0
         
     if customer_id > 0:
         if not frappe.db.get_value("Customer", {"woocommerce_customer_id": str(customer_id)}, "name", False,True):
@@ -116,7 +119,7 @@ def create_new_customer_of_guest(woocommerce_order):
     
         frappe.db.commit()
         frappe.local.form_dict.count_dict["customers"] += 1
-        make_woocommerce_log(title="create customer", status="Success", method="create_customer",
+        make_woocommerce_log(title="create customer", status="Success", method="create_new_customer_of_guest",
             message= "create customer",request_data=woocommerce_order, exception=False)
             
     except Exception as e:
