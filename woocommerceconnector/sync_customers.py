@@ -95,7 +95,7 @@ def create_customer_address(customer, woocommerce_customer):
             }).insert()
 
         except Exception as e:
-            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                     request_data=woocommerce_customer, exception=True)
 
     if shipping_address:
@@ -121,17 +121,17 @@ def create_customer_address(customer, woocommerce_customer):
             }).insert()
             
         except Exception as e:
-            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
 
 def create_customer_contact(customer, woocommerce_customer):
     try :
         frappe.get_doc({
             "doctype": "Contact",
-            "first_name": woocommerce_customer["blling"]["first_name"],
-            "last_name": woocommerce_customer["blling"]["last_name"],
-            "email_id": woocommerce_customer["blling"]["email"],
-            "phone": woocommerce_customer["blling"]["phone"],
+            "first_name": woocommerce_customer["billing"]["first_name"],
+            "last_name": woocommerce_customer["billing"]["last_name"],
+            "email_id": woocommerce_customer["billing"]["email"],
+            "phone": woocommerce_customer["billing"]["phone"],
             "links": [{
                 "link_doctype": "Customer",
                 "link_name": customer.name
@@ -139,7 +139,7 @@ def create_customer_contact(customer, woocommerce_customer):
         }).insert()
 
     except Exception as e:
-        make_woocommerce_log(title=e.message, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
+        make_woocommerce_log(title=e, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
 
 def get_country_name(code):

@@ -23,14 +23,14 @@ def sync_woocommerce_items(warehouse, woocommerce_item_list):
             make_item(warehouse, woocommerce_item, woocommerce_item_list)
 
         except woocommerceError as e:
-            make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                 request_data=woocommerce_item, exception=True)
 
         except Exception as e:
             if e.args[0] and e.args[0].startswith("402"):
                 raise e
             else:
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+                make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                     request_data=woocommerce_item, exception=True)
 
 def make_item(warehouse, woocommerce_item, woocommerce_item_list):
@@ -317,10 +317,10 @@ def sync_erpnext_items(price_list, warehouse, woocommerce_item_list):
                 frappe.local.form_dict.count_dict["products"] += 1
 
             except woocommerceError as e:
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+                make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                     request_data=item, exception=True)
             except Exception as e:
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+                make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                     request_data=item, exception=True)
 
 def get_erpnext_items(price_list):
@@ -630,14 +630,14 @@ def update_item_stock_qty():
         try:
             update_item_stock(item.item_code, woocommerce_settings)
         except woocommerceError as e:
-            make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                 request_data=item, exception=True)
 
         except Exception as e:
             if e.args[0] and e.args[0].startswith("402"):
                 raise e
             else:
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
+                make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                     request_data=item, exception=True)
 
 def update_item_stock(item_code, woocommerce_settings, bin=None):
@@ -663,7 +663,7 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
                 put_request(resource, item_data)
             except requests.exceptions.HTTPError as e:
                 if e.args[0] and e.args[0].startswith("404"):
-                    make_woocommerce_log(title=e.message, status="Error", method="update_item_stock", message=frappe.get_traceback(),
+                    make_woocommerce_log(title=e, status="Error", method="update_item_stock", message=frappe.get_traceback(),
                         request_data=item_data, exception=True)
                     disable_woocommerce_sync_for_item(item)
                 else:

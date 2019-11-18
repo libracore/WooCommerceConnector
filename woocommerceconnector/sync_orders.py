@@ -35,7 +35,7 @@ def sync_woocommerce_orders():
                         if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
                             raise e
                         else:
-                            make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
+                            make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
                                 request_data=woocommerce_order, exception=True)
             # close this order as synced
             close_synced_woocommerce_order(woocommerce_order.get("id"))
@@ -123,7 +123,7 @@ def create_new_customer_of_guest(woocommerce_order):
         if e.args[0] and e.args[0].startswith("402"):
             raise e
         else:
-            make_woocommerce_log(title=e.message, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
                 request_data=woocommerce_order, exception=True)
         
 def get_country_name(code):
@@ -356,7 +356,7 @@ def close_synced_woocommerce_orders():
                 put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
                     
             except requests.exceptions.HTTPError as e:
-                make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
+                make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
                     request_data=woocommerce_order, exception=True)
 
 def close_synced_woocommerce_order(wooid):
@@ -367,5 +367,5 @@ def close_synced_woocommerce_order(wooid):
         put_request("orders/{0}".format(wooid), order_data)
             
     except requests.exceptions.HTTPError as e:
-        make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_order", message=frappe.get_traceback(),
+        make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_order", message=frappe.get_traceback(),
             request_data=woocommerce_order, exception=True)
