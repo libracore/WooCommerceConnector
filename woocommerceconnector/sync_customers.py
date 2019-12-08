@@ -65,7 +65,7 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         if e.args[0] and e.args[0].startswith("402"):
             raise e
         else:
-            make_woocommerce_log(title=e, status="Error", method="create_customer", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e.message, status="Error", method="create_customer", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
         
 def create_customer_address(customer, woocommerce_customer):
@@ -95,7 +95,7 @@ def create_customer_address(customer, woocommerce_customer):
             }).insert()
 
         except Exception as e:
-            make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                     request_data=woocommerce_customer, exception=True)
 
     if shipping_address:
@@ -121,7 +121,7 @@ def create_customer_address(customer, woocommerce_customer):
             }).insert()
             
         except Exception as e:
-            make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e.message, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
 
 def create_customer_contact(customer, woocommerce_customer):
@@ -139,7 +139,7 @@ def create_customer_contact(customer, woocommerce_customer):
         }).insert()
 
     except Exception as e:
-        make_woocommerce_log(title=e, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
+        make_woocommerce_log(title=e.message, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
 
 def get_country_name(code):
