@@ -40,7 +40,8 @@ def get_request_request(path, settings=None):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2"
+                version="wc/v2",
+                timeout=1000
         )
         r = wcapi.get(path)
         
@@ -59,7 +60,8 @@ def post_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2"
+                version="wc/v2",
+                timeout=1000
         )
         
         r = wcapi.post(path, data)
@@ -76,9 +78,10 @@ def put_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2"
+                version="wc/v2",
+                timeout=5000
         )
-        
+        #frappe.log_error("{0} data: {1}".format(path, str(data)))
         r = wcapi.put(path, data)
         
         r.raise_for_status()
@@ -93,7 +96,8 @@ def delete_request(path):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2"
+                version="wc/v2",
+                timeout=1000
         )
         r = wcapi.post(path)
         
@@ -132,14 +136,13 @@ def get_woocommerce_items(ignore_filter_conditions=False):
     woocommerce_products = []
 
     filter_condition = ''
-    if not ignore_filter_conditions:
-        filter_condition = get_filtering_condition()
-
+    #if not ignore_filter_conditions:
+        #filter_condition = get_filtering_condition()
 
     response = get_request_request('products?per_page={0}&{1}'.format(_per_page,filter_condition) )
     woocommerce_products.extend(response.json())
 
-    for page_idx in xrange(1, int( response.headers.get('X-WP-TotalPages')) or 1):
+    for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
         response = get_request_request('products?per_page={0}&page={1}&{2}'.format(_per_page,page_idx+1,filter_condition) )
         woocommerce_products.extend(response.json())
 
@@ -151,10 +154,17 @@ def get_woocommerce_item_variants(woocommerce_product_id):
     filter_condition = ''
 
     response = get_request_request('products/{0}/variations?per_page={1}&{2}'.format(woocommerce_product_id,_per_page,filter_condition))
-        woocommerce_product_variants.extend(response.json()) 
+    woocommerce_product_variants.extend(response.json()) 
     
 
-    for page_idx in xrange(1, int( response.headers.get('X-WP-TotalPages')) or 1):
+    for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
+        response = get_request_request('products/{0}/variations?per_page={1}&page={2}&{3}'.format(woocommerce_product_id, _per_page, page_idx+1, filter_condition))
+        woocommerce_product_variants.extend(response.json())
+    
+    
+    return woocommerce_product_variants
+
+    for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
         response = get_request_request('products/{0}/variations?per_page={1}&page={2}&{3}'.format(woocommerce_product_id, _per_page, page_idx+1, filter_condition))
         woocommerce_product_variants.extend(response.json())
     
@@ -182,7 +192,7 @@ def get_woocommerce_orders(ignore_filter_conditions=False):
     response = get_request_request('orders?per_page={0}&{1}'.format(_per_page,filter_condition))
     woocommerce_orders.extend(response.json())
         
-    for page_idx in xrange(1, int( response.headers.get('X-WP-TotalPages')) or 1):
+    for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
         response = get_request_request('orders?per_page={0}&page={1}&{2}'.format(_per_page,page_idx+1,filter_condition))
         woocommerce_orders.extend(response.json())
 
@@ -199,7 +209,7 @@ def get_woocommerce_customers(ignore_filter_conditions=False):
         response = get_request_request('customers?per_page={0}&{1}'.format(_per_page,filter_condition))
         woocommerce_customers.extend(response.json())
 
-        for page_idx in xrange(1, int( response.headers.get('X-WP-TotalPages')) or 1):
+        for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
             response = get_request_request('customers?per_page={0}&page={1}&{2}'.format(_per_page,page_idx+1,filter_condition))
             woocommerce_customers.extend(response.json())
 

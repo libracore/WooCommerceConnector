@@ -31,16 +31,20 @@ def sync_woocommerce_resources():
 	make_woocommerce_log(title="Sync Job Queued", status="Queued", method=frappe.local.form_dict.cmd, message="Sync Job Queued")
 	
 	if woocommerce_settings.enable_woocommerce:
+		make_woocommerce_log(title="Sync Job Started", status="Started", method=frappe.local.form_dict.cmd, message="Sync Job Started")
 		try :
 			now_time = frappe.utils.now()
 			validate_woocommerce_settings(woocommerce_settings)
 			frappe.local.form_dict.count_dict = {}
-			sync_products(woocommerce_settings.price_list, woocommerce_settings.warehouse)
+			frappe.local.form_dict.count_dict["customers"] = 0
+			frappe.local.form_dict.count_dict["products"] = 0
+			frappe.local.form_dict.count_dict["orders"] = 0
+			#sync_products(woocommerce_settings.price_list, woocommerce_settings.warehouse)
 			sync_customers()
 			sync_orders()
-			close_synced_woocommerce_orders()
+			# close_synced_woocommerce_orders() # DO NOT GLOBALLY CLOSE
 			update_item_stock_qty()
-			frappe.db.set_value("woocommerce Settings", None, "last_sync_datetime", now_time)
+			#frappe.db.set_value("woocommerce Settings", None, "last_sync_datetime", now_time)
 			
 			make_woocommerce_log(title="Sync Completed", status="Success", method=frappe.local.form_dict.cmd, 
 				message= "Updated {customers} customer(s), {products} item(s), {orders} order(s)".format(**frappe.local.form_dict.count_dict))
@@ -97,3 +101,8 @@ def get_log_status():
 			"alert_class": alert_class
 		}
 		
+@frappe.whitelist()
+def sync_woocommerce_ids():
+	"Enqueue longjob for syncing woocommerce"
+	enqueue("woocommerceconnector.sync_products.add_w_id_to_erp", queue='long', timeout=1500)
+	frappe.msgprint(_("Queued for syncing. It may take a few minutes to an hour if this is your first sync."))

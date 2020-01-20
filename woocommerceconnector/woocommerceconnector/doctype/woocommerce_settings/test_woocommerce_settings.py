@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# -*- coding: utf-8 -*- 
+# Copyright (c) 2018, libracore and Contributors 
 # See license.txt
 from __future__ import unicode_literals
 
@@ -10,8 +10,9 @@ import unittest
 from frappe.utils import cint, cstr, flt
 from frappe.utils.fixtures import sync_fixtures
 from woocommerceconnector.sync_orders import create_order, valid_customer_and_product
-from woocommerceconnector.sync_products import make_item
+from woocommerceconnector.sync_products import make_item, update_item_stock
 from woocommerceconnector.sync_customers import create_customer
+from erpnext.stock.utils import get_bin
 
 class woocommerceSettings(unittest.TestCase):
 	def setUp(self):
@@ -140,3 +141,24 @@ class woocommerceSettings(unittest.TestCase):
 			where woocommerce_order_id = %s""", sales_order.woocommerce_order_id)[0][0]
 
 		self.assertEqual(delivery_note_count, len(woocommerce_order.get("order").get("fulfillments")))
+
+def test_bin(item_code, warehouse):
+    bin = get_bin(item_code, warehouse)
+    print("{0} has {1} of {2}".format(warehouse, bin.actual_qty, item_code))
+    return 
+
+def test_multibin(item_code, warehouse):
+    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    bin = get_bin(item_code, woocommerce_settings.warehouse)
+    qty = bin.actual_qty
+    for warehouse in woocommerce_settings.warehouses:
+        _bin = get_bin(item_code, warehouse.warehouse)
+        qty += _bin.actual_qty
+    print("Multi-warehouses have {1} of {2}".format(warehouse, qty, item_code))
+    return
+
+def test_update_item_stock(item_code):
+    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    update_item_stock(item_code, woocommerce_settings)
+    print("Updated {0}".format(item_code))
+    return
