@@ -3,7 +3,7 @@
 
 frappe.provide("woocommerceconnector.woocommerce_settings");
 
-frappe.ui.form.on("woocommerce Settings", "onload", function(frm, dt, dn){
+frappe.ui.form.on("WooCommerce Settings", "onload", function(frm, dt, dn){
 	frappe.call({
 		method:"woocommerceconnector.woocommerceconnector.doctype.woocommerce_settings.woocommerce_settings.get_series",
 		callback:function(r){
@@ -15,12 +15,12 @@ frappe.ui.form.on("woocommerce Settings", "onload", function(frm, dt, dn){
 	woocommerceconnector.woocommerce_settings.setup_queries(frm);
 })
 
-frappe.ui.form.on("woocommerce Settings", "app_type", function(frm, dt, dn) {
+frappe.ui.form.on("WooCommerce Settings", "app_type", function(frm, dt, dn) {
 	frm.toggle_reqd("api_key", (frm.doc.app_type == "Private"));
 	frm.toggle_reqd("password", (frm.doc.app_type == "Private"));
 })
 
-frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
+frappe.ui.form.on("WooCommerce Settings", "refresh", function(frm){
 	if(!frm.doc.__islocal && frm.doc.enable_woocommerce === 1){
 		frm.toggle_reqd("price_list", true);
 		frm.toggle_reqd("warehouse", true);

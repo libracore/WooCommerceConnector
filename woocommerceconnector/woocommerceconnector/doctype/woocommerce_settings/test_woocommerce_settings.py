@@ -14,7 +14,7 @@ from woocommerceconnector.sync_products import make_item, update_item_stock
 from woocommerceconnector.sync_customers import create_customer
 from erpnext.stock.utils import get_bin
 
-class woocommerceSettings(unittest.TestCase):
+class WooCommerceSettings(unittest.TestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 		sync_fixtures("woocommerceconnector")
@@ -26,7 +26,7 @@ class woocommerceSettings(unittest.TestCase):
 		self.setup_woocommerce()
 	
 	def setup_woocommerce(self):
-		woocommerce_settings = frappe.get_doc("woocommerce Settings")
+		woocommerce_settings = frappe.get_doc("WooCommerce Settings")
 		woocommerce_settings.taxes = []
 		
 		woocommerce_settings.update({
@@ -118,7 +118,7 @@ class woocommerceSettings(unittest.TestCase):
 		with open (os.path.join(os.path.dirname(__file__), "test_data", "woocommerce_order.json")) as woocommerce_order:
 			woocommerce_order = json.load(woocommerce_order)
 
-		woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+		woocommerce_settings = frappe.get_doc("WooCommerce Settings", "WooCommerce Settings")
 		
 		create_order(woocommerce_order.get("order"), woocommerce_settings, "_Test Company")
 
@@ -148,7 +148,7 @@ def test_bin(item_code, warehouse):
     return 
 
 def test_multibin(item_code, warehouse):
-    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    woocommerce_settings = frappe.get_doc("WooCommerce Settings", "WooCommerce Settings")
     bin = get_bin(item_code, woocommerce_settings.warehouse)
     qty = bin.actual_qty
     for warehouse in woocommerce_settings.warehouses:
@@ -158,7 +158,7 @@ def test_multibin(item_code, warehouse):
     return
 
 def test_update_item_stock(item_code):
-    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    woocommerce_settings = frappe.get_doc("WooCommerce Settings", "WooCommerce Settings")
     update_item_stock(item_code, woocommerce_settings)
     print("Updated {0}".format(item_code))
     return

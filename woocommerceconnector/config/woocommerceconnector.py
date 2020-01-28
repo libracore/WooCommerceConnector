@@ -9,7 +9,7 @@ def get_data():
 			"items": [
 				{
 					"type": "doctype",
-					"name": "woocommerce Settings",
+					"name": "WooCommerce Settings",
 					"label": _("WooCommerce Settings"),
 					"description": _("Settings"),
 				},
