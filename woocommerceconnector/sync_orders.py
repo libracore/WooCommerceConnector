@@ -160,16 +160,18 @@ def create_order(woocommerce_order, woocommerce_settings, company=None):
 def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
     id = str(woocommerce_order.get("customer_id"))
     customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", id]], fields=['name'])
-    backup_customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
-    match_customer = match_customer(woocommerce_order)
     if customer:
         customer = customer[0]['name']
-    elif backup_customer:
-        customer = backup_customer[0]['name']
-    elif match_customer:
-        customer = match_customer
     else:
-        frappe.log_error("No customer found. This should never happen.")
+        guest_customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
+        if guest_customer:
+            customer = guest_customer[0]['name']
+        else:
+            match_customer = match_customer(woocommerce_order)
+            if match_customer:
+                customer = match_customer
+            else:
+                frappe.log_error("No customer found. This should never happen.")
 
     so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
     if not so:
