@@ -402,7 +402,7 @@ def match_customer(woocommerce_order):
           AND `tabAddress`.`disabled` = 0
           AND `tabCustomer`.`customer_name` = '{customer}'
           AND `tabAddress`.`address_line1` = '{address}'
-          AND `tabAddress`.`pincode` = {pincode}';""".format(
+          AND `tabAddress`.`pincode` = '{pincode}';""".format(
           customer=customer, address=address, pincode=pincode)
     matches = frappe.db.sql(sql_query, as_dict=True)
     if matches and len(matches) > 0:
