@@ -167,9 +167,9 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
         if guest_customer:
             customer = guest_customer[0]['name']
         else:
-            match_customer = match_customer(woocommerce_order)
-            if match_customer:
-                customer = match_customer
+            match = match_customer(woocommerce_order)
+            if match:
+                customer = match
             else:
                 frappe.log_error("No customer found. This should never happen.")
 
