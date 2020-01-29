@@ -81,10 +81,20 @@ def valid_customer_and_product(woocommerce_order):
             # make_woocommerce_log(title="Missing Default Customer", status="Error", method="valid_customer_and_product", message="Missing Default Customer in Woocommerce Settings",
                 # request_data=woocommerce_order, exception=True)
             # return False
-        if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
-            make_woocommerce_log(title="create new customer based on guest order", status="Started", method="valid_customer_and_product", message="creat new customer based on guest order",
-                request_data=woocommerce_order, exception=False)
-            create_new_customer_of_guest(woocommerce_order)
+        # try to match against existing customer
+        match = match_customer(woocommerce_order)
+        if match:
+            make_woocommerce_log(title="guest order matched against customer", status="Started", 
+                                 method="valid_customer_and_product", 
+                                 message="guest order was matched against the existing customer {0} based on pattern matching".format(match),
+                                 request_data=woocommerce_order, exception=False)
+        else:
+            if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
+                make_woocommerce_log(title="create new customer based on guest order", status="Started", 
+                                     method="valid_customer_and_product", 
+                                     message="create new customer based on guest order",
+                                     request_data=woocommerce_order, exception=False)
+                create_new_customer_of_guest(woocommerce_order)
 
     return True
 
@@ -151,10 +161,13 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
     id = str(woocommerce_order.get("customer_id"))
     customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", id]], fields=['name'])
     backup_customer = frappe.get_all("Customer", filters=[["woocommerce_customer_id", "=", "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))]], fields=['name'])
+    match_customer = match_customer(woocommerce_order)
     if customer:
         customer = customer[0]['name']
     elif backup_customer:
         customer = backup_customer[0]['name']
+    elif match_customer:
+        customer = match_customer
     else:
         frappe.log_error("No customer found. This should never happen.")
 
@@ -372,3 +385,27 @@ def close_synced_woocommerce_order(wooid):
     except requests.exceptions.HTTPError as e:
         make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_order", message=frappe.get_traceback(),
             request_data=woocommerce_order, exception=True)
+
+# this feature tries to match a repeating guest customer to an existing ERPNext customer
+def match_customer(woocommerce_order):
+    cust_info = woocommerce_order.get("billing")
+    customer = "{0} {1}".format(cust_info["first_name"], cust_info["last_name"])
+    address = cust_info["address_1"]
+    pincode = cust_info["postcode"]
+    sql_query = """SELECT `tabCustomer`.`name`, `tabCustomer`.`customer_name`, `tabAddress`.`address_line1`, `tabAddress`.`pincode` 
+        FROM `tabDynamic Link` 
+        LEFT JOIN `tabCustomer` ON `tabCustomer`.`name` = `tabDynamic Link`.`link_name`
+        LEFT JOIN `tabAddress` ON `tabAddress`.`name` = `tabDynamic Link`.`parent`
+        WHERE 
+          `tabDynamic Link`.`parenttype` = 'Address' 
+          AND `tabDynamic Link`.`link_doctype` = 'Customer' 
+          AND `tabAddress`.`disabled` = 0
+          AND `tabCustomer`.`customer_name` = '{customer}'
+          AND `tabAddress`.`address_line1` = '{address}'
+          AND `tabAddress`.`pincode` = {pincode}';""".format(
+          customer=customer, address=address, pincode=pincode)
+    matches = frappe.db.sql(sql_query, as_dict=True)
+    if matches and len(matches) > 0:
+        return matches[0]['name']
+    else:
+        return None
