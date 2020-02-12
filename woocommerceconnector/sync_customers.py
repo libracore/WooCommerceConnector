@@ -36,13 +36,20 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         # try to match territory
         country_code = get_country_name(woocommerce_customer["billing"]["country"])
         country_matches = frappe.get_all("Country", filters={'code': country_code}, fields=['name'])
+        debug_match_code = ""
         if country_matches:
             if frappe.db.exists("Territory", country_matches[0]['name']):
                 territory = country_matches[0]['name']
+                debug_match_code = "T1"
             else:
                 territory = frappe.utils.nestedset.get_root_of("Territory")
+                debug_match_code = "T2"
         else:
             territory = frappe.utils.nestedset.get_root_of("Territory")
+            debug_match_code = "T3"
+        make_woocommerce_log(title="Territory detection " + debug_match_code, status="Success", method="create_customer", 
+            message="country_code: {0}, country_matches: {1}, territory: {2}".format(country_code, country_matches, territory), 
+            request_data=woocommerce_customer, exception=True)
         customer = frappe.get_doc({
             "doctype": "Customer",
             "name": woocommerce_customer.get("id"),
