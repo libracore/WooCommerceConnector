@@ -17,7 +17,7 @@ def sync_orders():
 
 def sync_woocommerce_orders():
     frappe.local.form_dict.count_dict["orders"] = 0
-    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     for woocommerce_order in get_woocommerce_orders():
         if woocommerce_order.get("status").lower() == "processing":
@@ -43,7 +43,7 @@ def sync_woocommerce_orders():
 def valid_customer_and_product(woocommerce_order):
     if woocommerce_order.get("status").lower() == "cancelled":
         return False
-    warehouse = frappe.get_doc("woocommerce Settings", "woocommerce Settings").warehouse
+    warehouse = frappe.get_doc("WooCommerce Config", "WooCommerce Config").warehouse
     for item in woocommerce_order.get("line_items"):
         if item.get("sku"):
             if not frappe.db.get_value("Item", {"barcode": item.get("sku")}, "item_code"):
@@ -76,9 +76,9 @@ def valid_customer_and_product(woocommerce_order):
             create_customer(woocommerce_customer, woocommerce_customer_list=[])
 
     if customer_id == 0: # we are dealing with a guest customer 
-        # woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+        # woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
         # if not woocommerce_settings.default_customer:
-            # make_woocommerce_log(title="Missing Default Customer", status="Error", method="valid_customer_and_product", message="Missing Default Customer in Woocommerce Settings",
+            # make_woocommerce_log(title="Missing Default Customer", status="Error", method="valid_customer_and_product", message="Missing Default Customer in WooCommerce Config",
                 # request_data=woocommerce_order, exception=True)
             # return False
         if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
@@ -94,7 +94,7 @@ def get_country_from_code(country_code):
 def create_new_customer_of_guest(woocommerce_order):
     import frappe.utils.nestedset
 
-    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     cust_id = "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))
     cust_info = woocommerce_order.get("billing")
@@ -330,7 +330,7 @@ def get_shipping_account_head(shipping):
         shipping_title = shipping.get("method_title").encode("utf-8")
 
         shipping_account =  frappe.db.get_value("woocommerce Tax Account", \
-                {"parent": "woocommerce Settings", "woocommerce_tax": shipping_title}, "tax_account")
+                {"parent": "WooCommerce Config", "woocommerce_tax": shipping_title}, "tax_account")
 
         if not shipping_account:
                 frappe.throw("Tax Account not specified for woocommerce shipping method  {0}".format(shipping.get("method_title")))
@@ -342,7 +342,7 @@ def get_tax_account_head(tax):
     tax_title = tax.get("name").encode("utf-8") or tax.get("method_title").encode("utf-8")
 
     tax_account =  frappe.db.get_value("woocommerce Tax Account", \
-        {"parent": "woocommerce Settings", "woocommerce_tax": tax_title}, "tax_account")
+        {"parent": "WooCommerce Config", "woocommerce_tax": tax_title}, "tax_account")
 
     if not tax_account:
         frappe.throw("Tax Account not specified for woocommerce Tax {0}".format(tax.get("name")))

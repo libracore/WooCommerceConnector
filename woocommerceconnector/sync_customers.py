@@ -26,7 +26,7 @@ def update_customer(woocommerce_customer):
 def create_customer(woocommerce_customer, woocommerce_customer_list):
     import frappe.utils.nestedset
 
-    woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
+    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     cust_name = (woocommerce_customer.get("first_name") + " " + (woocommerce_customer.get("last_name") \
         and  woocommerce_customer.get("last_name") or "")) if woocommerce_customer.get("first_name")\

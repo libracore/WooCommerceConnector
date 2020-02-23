@@ -10,7 +10,7 @@ from frappe.model.document import Document
 from woocommerceconnector.woocommerce_requests import get_request
 from woocommerceconnector.exceptions import woocommerceSetupError
 
-class WooCommerceSettings(Document):
+class WooCommerceConfig(Document):
 	def validate(self):
 		if self.enable_woocommerce == 1:
 			self.validate_access_credentials()

@@ -21,14 +21,14 @@ _per_page=100
 #        time.sleep(10)    # pause 10 seconds
 
 def get_woocommerce_settings():
-    d = frappe.get_doc("woocommerce Settings")
+    d = frappe.get_doc("WooCommerce Config")
     
     if d.woocommerce_url:
         d.api_secret = d.get_password(fieldname='api_secret')
         return d.as_dict()
     
     else:
-        frappe.throw(_("woocommerce store URL is not configured on woocommerce Settings"), woocommerceError)
+        frappe.throw(_("woocommerce store URL is not configured on WooCommerce Config"), woocommerceError)
 
 def get_request_request(path, settings=None):
         if not settings:

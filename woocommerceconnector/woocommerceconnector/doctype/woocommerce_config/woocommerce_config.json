@@ -329,7 +329,7 @@
  "modified": "2020-01-28 13:19:58.226891",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
- "name": "WooCommerce Settings",
+ "name": "WooCommerce Config",
  "owner": "Administrator",
  "permissions": [
   {

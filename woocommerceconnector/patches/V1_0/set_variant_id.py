@@ -14,7 +14,7 @@ def execute():
 	sync_fixtures("woocommerceconnector")
 	frappe.reload_doctype("Item")
 
-	woocommerce_settings = frappe.get_doc("woocommerce Settings")
+	woocommerce_settings = frappe.get_doc("WooCommerce Config")
 	if not woocommerce_settings.enable_woocommerce or not woocommerce_settings.password:
 		return
 
