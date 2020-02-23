@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import cstr
 from frappe import _
 import requests.exceptions
 from .exceptions import woocommerceError
@@ -13,39 +14,9 @@ woocommerce_variants_attr_list = ["option1", "option2", "option3"]
 
 def sync_products(price_list, warehouse):
     woocommerce_item_list = []
-    sync_woocommerce_items(warehouse, woocommerce_item_list)
+    #sync_woocommerce_items(warehouse, woocommerce_item_list)
     frappe.local.form_dict.count_dict["products"] = len(woocommerce_item_list)
     sync_erpnext_items(price_list, warehouse, woocommerce_item_list)
-
-def sync_woocommerce_items(warehouse, woocommerce_item_list):
-    for woocommerce_item in get_woocommerce_items():
-        try:
-            make_item(warehouse, woocommerce_item, woocommerce_item_list)
-
-        except woocommerceError as e:
-            make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
-                request_data=woocommerce_item, exception=True)
-
-        except Exception as e:
-            if e.args[0] and e.args[0].startswith("402"):
-                raise e
-            else:
-                make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
-                    request_data=woocommerce_item, exception=True)
-
-def make_item(warehouse, woocommerce_item, woocommerce_item_list):
-
-    if has_variants(woocommerce_item):
-        #replace woocommerce variants id array with actual variant info
-        woocommerce_item['variants'] = get_woocommerce_item_variants(woocommerce_item.get("id"))
-        
-        attributes = create_attribute(woocommerce_item)
-        create_item(woocommerce_item, warehouse, 1, attributes, woocommerce_item_list=woocommerce_item_list)
-        create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_variants_attr_list, woocommerce_item_list=woocommerce_item_list)
-
-    else:
-        """woocommerce_item["variant_id"] = woocommerce_item['variants'][0]["id"]"""
-        create_item(woocommerce_item, warehouse, woocommerce_item_list=woocommerce_item_list)
 
 def has_variants(woocommerce_item):
     if len(woocommerce_item.get("variations")) >= 1:
@@ -100,87 +71,6 @@ def set_new_attribute_values(item_attr, values):
                 "abbr": attr_value
             })
 
-def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,variant_of=None, woocommerce_item_list=[]):
-    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
-    valuation_method = woocommerce_settings.get("valuation_method")
-    weight_unit =  woocommerce_settings.get("weight_unit")
-    
-
-    item_dict = {
-        "doctype": "Item",
-        "woocommerce_product_id": woocommerce_item.get("id"),
-        "woocommerce_variant_id": woocommerce_item.get("id"),
-        "variant_of": variant_of,
-        "sync_with_woocommerce": 1,
-        "is_stock_item": 1,
-        "item_code": str(woocommerce_item.get("id")) + " " + woocommerce_item.get("name"),
-        "item_name": woocommerce_item.get("name"),
-        "valuation_method": valuation_method,
-        "description": woocommerce_item.get("description") or woocommerce_item.get("name"),
-        "woocommerce_description": woocommerce_item.get("description") or woocommerce_item.get("name"),
-        "woocommerce_short_description": woocommerce_item.get("short_description") or woocommerce_item.get("name"),
-        # "item_group": get_item_group(woocommerce_item.get("categories")), # deactivated according to #1127
-        "has_variants": has_variant,
-        "attributes": attributes or [],
-        "stock_uom": woocommerce_item.get("uom") or _("Nos"),
-        "stock_keeping_unit": woocommerce_item.get("sku"), #or get_sku(woocommerce_item),
-        "default_warehouse": warehouse,
-        "image": get_item_image(woocommerce_item),
-        "weight_uom":  weight_unit, #woocommerce_item.get("weight_unit"),
-        "weight_per_unit": woocommerce_item.get("weight")
-    }
-    item_dict["web_long_description"] = item_dict["woocommerce_description"]
-
-    if not is_item_exists(item_dict, attributes, variant_of=variant_of, woocommerce_item_list=woocommerce_item_list):
-        item_details = get_item_details(woocommerce_item)
-
-        if not item_details:
-            new_item = frappe.get_doc(item_dict)
-            new_item.insert()
-            name = new_item.name
-
-        else:
-            update_item(item_details, item_dict)
-            name = item_details.name
-
-        if not has_variant:
-            add_to_price_list(woocommerce_item, name)
-
-        frappe.db.commit()
-
-def create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_variants_attr_list, woocommerce_item_list):
-    template_item = frappe.db.get_value("Item", filters={"woocommerce_product_id": woocommerce_item.get("id")},
-        fieldname=["name", "stock_uom"], as_dict=True)
-    
-
-    if template_item:
-        for variant in woocommerce_item.get("variants"):
-            woocommerce_item_variant = {
-                "id" : variant.get("id"),
-                "woocommerce_variant_id" : variant.get("id"),
-                "name": woocommerce_item.get("name"),
-                "item_code":  str(variant.get("id")) + " " + woocommerce_item.get("name"),
-                "title": variant.get("name"),
-                # "item_group": get_item_group(woocommerce_item.get("")),  # deactivated, no category update
-                "sku": variant.get("sku"),
-                "uom": template_item.stock_uom or _("Nos"),
-                "item_price": variant.get("price"),
-                "variant_id": variant.get("id"),
-                "weight_unit": variant.get("weight_unit"),
-                "net_weight": variant.get("weight")
-            }
-
-            woocommerce_variants_attr_list = variant.get("attributes")
-            for i, variant_attr in enumerate(woocommerce_variants_attr_list):
-                woocommerce_item_variant["name"] = woocommerce_item_variant["name"] + "-" + str(variant_attr.get("option"))
-                attributes[i].update({"attribute_value": get_attribute_value(variant_attr.get("option"), variant_attr)})
-            
-            create_item(woocommerce_item_variant, warehouse, 0, attributes, template_item.name, woocommerce_item_list=woocommerce_item_list)
-
-
-
-
-
 def get_attribute_value(variant_attr_val, attribute):
     attribute_value = frappe.db.sql("""select attribute_value from `tabItem Attribute Value`
         where parent = %s and (abbr = %s or attribute_value = %s)""", (attribute["name"], variant_attr_val,
@@ -233,82 +123,6 @@ def get_item_details(woocommerce_item):
             ["name", "stock_uom", "item_name"], as_dict=1)
         return item_details
 
-#fix this
-def is_item_exists(woocommerce_item, attributes=None, variant_of=None, woocommerce_item_list=[]):
-    if variant_of:
-        name = variant_of
-    else:
-        name = frappe.db.get_value("Item", {"item_name": woocommerce_item.get("item_name")})
-
-    woocommerce_item_list.append(cstr(woocommerce_item.get("woocommerce_product_id")))
-
-    if name:
-        item = frappe.get_doc("Item", name)
-        item.flags.ignore_mandatory=True
-
-        if not variant_of and not item.woocommerce_product_id:
-            item.woocommerce_product_id = woocommerce_item.get("woocommerce_product_id")
-            item.woocommerce_variant_id = woocommerce_item.get("woocommerce_variant_id")
-            item.save()
-            return False
-
-        if item.woocommerce_product_id and attributes and attributes[0].get("attribute_value"):
-            if not variant_of:
-                variant_of = frappe.db.get_value("Item",
-                    {"woocommerce_product_id": item.woocommerce_product_id}, "variant_of")
-
-            # create conditions for all item attributes,
-            # as we are putting condition basis on OR it will fetch all items matching either of conditions
-            # thus comparing matching conditions with len(attributes)
-            # which will give exact matching variant item.
-
-            conditions = ["(iv.attribute='{0}' and iv.attribute_value = '{1}')"\
-                .format(attr.get("attribute"), attr.get("attribute_value")) for attr in attributes]
-
-            conditions = "( {0} ) and iv.parent = it.name ) = {1}".format(" or ".join(conditions), len(attributes))
-
-            parent = frappe.db.sql(""" select * from tabItem it where
-                ( select count(*) from `tabItem Variant Attribute` iv
-                    where {conditions} and it.variant_of = %s """.format(conditions=conditions) ,
-                variant_of, as_list=1)
-
-            if parent:
-                variant = frappe.get_doc("Item", parent[0][0])
-                variant.flags.ignore_mandatory = True
-
-                variant.woocommerce_product_id = woocommerce_item.get("woocommerce_product_id")
-                variant.woocommerce_variant_id = woocommerce_item.get("woocommerce_variant_id")
-                variant.save()
-            return False
-
-        if item.woocommerce_product_id and item.woocommerce_product_id != woocommerce_item.get("woocommerce_product_id"):
-            return False
-
-        return True
-
-    else:
-        return False
-
-def update_item(item_details, item_dict):
-    item = frappe.get_doc("Item", item_details.name)
-        
-    item_dict["stock_uom"] = item_details.stock_uom
-
-    if not item_dict["web_long_description"]:
-        del item_dict["web_long_description"]
-
-    if item_dict.get("warehouse"):
-        del item_dict["warehouse"]
-
-    del item_dict["description"]
-    del item_dict["item_code"]
-    del item_dict["variant_of"]
-    del item_dict["item_name"]
-
-    item.update(item_dict)
-    item.flags.ignore_mandatory = True
-    item.save()
-
 def sync_erpnext_items(price_list, warehouse, woocommerce_item_list):
     for item in get_erpnext_items(price_list):
         if item.woocommerce_product_id not in woocommerce_item_list:
@@ -334,7 +148,7 @@ def get_erpnext_items(price_list):
 
     item_from_master = """select name, item_code, item_name, item_group,
         description, woocommerce_description, has_variants, variant_of, stock_uom, image, woocommerce_product_id, 
-        woocommerce_variant_id, sync_qty_with_woocommerce, weight_per_unit, weight_uom, default_supplier from tabItem
+        woocommerce_variant_id, sync_qty_with_woocommerce, weight_per_unit, weight_uom from tabItem
         where sync_with_woocommerce=1 and (variant_of is null or variant_of = '')
         and (disabled is null or disabled = 0)  %s """ % last_sync_condition
 
@@ -347,8 +161,8 @@ def get_erpnext_items(price_list):
 
     item_from_item_price = """select i.name, i.item_code, i.item_name, i.item_group, i.description,
         i.woocommerce_description, i.has_variants, i.variant_of, i.stock_uom, i.image, i.woocommerce_product_id,
-        i.woocommerce_variant_id, i.sync_qty_with_woocommerce, i.weight_per_unit, i.weight_uom,
-        i.default_supplier from `tabItem` i, `tabItem Price` ip
+        i.woocommerce_variant_id, i.sync_qty_with_woocommerce, i.weight_per_unit, i.weight_uom
+        from `tabItem` i, `tabItem Price` ip
         where price_list = '%s' and i.name = ip.item_code
             and sync_with_woocommerce=1 and (disabled is null or disabled = 0) %s""" %(price_list, item_price_condition)
 
@@ -397,7 +211,7 @@ def sync_item_with_woocommerce(item, price_list, warehouse):
             put_request("products/{0}".format(item.get("woocommerce_product_id")), item_data)
             
         except requests.exceptions.HTTPError as e:
-            if e.args[0] and e.args[0].startswith("404"):
+            if e.args[0] and (e.args[0].startswith("404") or e.args[0].startswith("400")):
                 if frappe.db.get_value("WooCommerce Config", "WooCommerce Config", "if_not_exists_create_item_to_woocommerce"):
                     item_data["id"] = ''
                     create_new_item_to_woocommerce(item, item_data, erp_item, variant_item_name_list)
@@ -419,7 +233,7 @@ def sync_item_with_woocommerce(item, price_list, warehouse):
                 erp_varient_item.save()
                 
     # rlavaud let's not sych image willy nilly
-    #sync_item_image(erp_item)  
+    sync_item_image(erp_item)  
     frappe.db.commit()
 
 
@@ -436,32 +250,16 @@ def create_new_item_to_woocommerce(item, item_data, erp_item, variant_item_name_
 
 def sync_item_image(item):
     image_info = {
-        "image": {}
+        "images": [{}]
     }
 
     if item.image:
-        img_details = frappe.db.get_value("File", {"file_url": item.image}, ["file_name", "content_hash"])
+        img_details = frappe.db.get_value("File", {"file_url": item.image}, ["file_name", "file_url", "is_private", "content_hash"])
 
-        if img_details and img_details[0] and img_details[1]:
-            is_private = item.image.startswith("/private/files/")
+        image_info["images"][0]["src"] = 'https://' + cstr(frappe.local.site) + img_details[1]
+        image_info["images"][0]["position"] = 0
 
-            with open(get_files_path(img_details[0].strip("/"), is_private=is_private), "rb") as image_file:
-                image_info["image"]["attachment"] = base64.b64encode(image_file.read())
-            image_info["image"]["filename"] = img_details[0]
-
-            #to avoid 422 : Unprocessable Entity
-            if not image_info["image"]["attachment"] or not image_info["image"]["filename"]:
-                return False
-
-        elif item.image.startswith("http") or item.image.startswith("ftp"):
-            if validate_image_url(item.image):
-                #to avoid 422 : Unprocessable Entity
-                image_info["image"]["src"] = item.image
-
-        if image_info["image"]:
-            if not item_image_exists(item.woocommerce_product_id, image_info):
-                # to avoid image duplication
-                post_request("/admin/products/{0}/images.json".format(item.woocommerce_product_id), image_info)
+        post_request("products/{0}".format(item.woocommerce_product_id), image_info)
 
 
 def validate_image_url(url):

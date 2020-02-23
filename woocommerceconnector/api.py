@@ -39,7 +39,7 @@ def sync_woocommerce_resources():
 			frappe.local.form_dict.count_dict["customers"] = 0
 			frappe.local.form_dict.count_dict["products"] = 0
 			frappe.local.form_dict.count_dict["orders"] = 0
-			#sync_products(woocommerce_settings.price_list, woocommerce_settings.warehouse)
+			sync_products(woocommerce_settings.price_list, woocommerce_settings.warehouse)
 			sync_customers()
 			sync_orders()
 			# close_synced_woocommerce_orders() # DO NOT GLOBALLY CLOSE

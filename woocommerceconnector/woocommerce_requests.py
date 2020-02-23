@@ -40,7 +40,7 @@ def get_request_request(path, settings=None):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         r = wcapi.get(path)
@@ -60,7 +60,7 @@ def post_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         
@@ -78,7 +78,7 @@ def put_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=5000
         )
         #frappe.log_error("{0} data: {1}".format(path, str(data)))
@@ -96,7 +96,7 @@ def delete_request(path):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         r = wcapi.post(path)
