@@ -3,7 +3,6 @@ import frappe
 from frappe import _
 from .exceptions import woocommerceError
 from .utils import make_woocommerce_log
-from .sync_products import make_item
 from .sync_customers import create_customer, create_customer_address, create_customer_contact
 from frappe.utils import flt, nowdate, cint
 from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
