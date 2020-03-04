@@ -10,7 +10,7 @@ import unittest
 from frappe.utils import cint, cstr, flt
 from frappe.utils.fixtures import sync_fixtures
 from woocommerceconnector.sync_orders import create_order, valid_customer_and_product
-from woocommerceconnector.sync_products import make_item, update_item_stock
+from woocommerceconnector.sync_products import update_item_stock
 from woocommerceconnector.sync_customers import create_customer
 from erpnext.stock.utils import get_bin
 

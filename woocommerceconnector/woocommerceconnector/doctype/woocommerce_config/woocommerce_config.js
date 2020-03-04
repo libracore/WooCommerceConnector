@@ -1,26 +1,26 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
-frappe.provide("woocommerceconnector.woocommerce_settings");
+frappe.provide("woocommerceconnector.woocommerce_config");
 
-frappe.ui.form.on("WooCommerce Settings", "onload", function(frm, dt, dn){
+frappe.ui.form.on("WooCommerce Config", "onload", function(frm, dt, dn){
 	frappe.call({
-		method:"woocommerceconnector.woocommerceconnector.doctype.woocommerce_settings.woocommerce_settings.get_series",
+		method:"woocommerceconnector.woocommerceconnector.doctype.woocommerce_config.woocommerce_config.get_series",
 		callback:function(r){
 			$.each(r.message, function(key, value){
 				set_field_options(key, value)
 			})
 		}
 	})
-	woocommerceconnector.woocommerce_settings.setup_queries(frm);
+	woocommerceconnector.woocommerce_config.setup_queries(frm);
 })
 
-frappe.ui.form.on("WooCommerce Settings", "app_type", function(frm, dt, dn) {
+frappe.ui.form.on("WooCommerce Config", "app_type", function(frm, dt, dn) {
 	frm.toggle_reqd("api_key", (frm.doc.app_type == "Private"));
 	frm.toggle_reqd("password", (frm.doc.app_type == "Private"));
 })
 
-frappe.ui.form.on("WooCommerce Settings", "refresh", function(frm){
+frappe.ui.form.on("WooCommerce Config", "refresh", function(frm){
 	if(!frm.doc.__islocal && frm.doc.enable_woocommerce === 1){
 		frm.toggle_reqd("price_list", true);
 		frm.toggle_reqd("warehouse", true);
@@ -85,7 +85,7 @@ frappe.ui.form.on("WooCommerce Settings", "refresh", function(frm){
 })
 
 
-$.extend(woocommerceconnector.woocommerce_settings, {
+$.extend(woocommerceconnector.woocommerce_config, {
 	setup_queries: function(frm) {
 		frm.fields_dict["warehouse"].get_query = function(doc) {
 			return {

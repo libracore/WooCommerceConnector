@@ -1,24 +1,24 @@
-DocType: woocommerce Settings,woocommerce Settings,WooCommerce Einstellungen
-DocType: woocommerce Settings,Last sync request was successful,Letzte Synchronisation war erfolgreich
-DocType: woocommerce Settings,Enable woocommerce,WooCommerce aktivieren
-DocType: woocommerce Settings,Sync WooCommerce,WooCommerce abgleichen
-DocType: woocommerce Settings,Sync WooCommerce Ids to ERP,WooCommerce-IDs ins ERP laden
-DocType: woocommerce Settings,WooCommerce Log,WooCommerce Protokoll
-DocType: woocommerce Settings,Reset Last Sync Date,Letztes Synchronisationsdatum zurücksetzen
-DocType: woocommerce Settings,Uncheck to run with self signed certificate,Abwählen um mit eigenen Zertifikaten zu arbeiten
-DocType: woocommerce Settings,Hourly synchronization,Stündliche Synchronisation
-DocType: woocommerce Settings,Shop URL,WooCommerce URL
-DocType: woocommerce Settings,"Sync Item Price, from seleted Price List with woocommerce",Preise mit dieser Preislisten synchronisieren
-DocType: woocommerce Settings,If not exists create item to woocommerce,In WooCommerce erstellen falls Artikel nicht existiert
-DocType: woocommerce Settings,"If woocommerce not contains a customer in Order, then while syncing Orders, the system will consider default customer for order",Falls der Kunde nicht in der Bestellung enthalten ist diesen Kunden verwenden
-DocType: woocommerce Settings,Customer Group will set to selected group while syncing customers from woocommerce,Standard-Kundengruppe für den Kundenabgleich
-DocType: woocommerce Settings,Cash Account will used for Sales Invoice creation,Bargeld-Konto für Ausgangsrechnungserstellung
-DocType: woocommerce Settings,"Sync Item Quantity, from seleted Warehouse with woocommerce",Für die Synchronisation der Lagermenge
-DocType: woocommerce Settings,"To sync Item Quantity, from more than one Warehouse with woocommerce, use the following table (optionaly)",Zusätzliche Lagerorte für die Synchronisation (optional)
-DocType: woocommerce Settings,Woocommerce Weight unit,Gewichtseinheit in WooCommerce
-DocType: woocommerce Settings,Woocommerce Dimensions unit,Dimensionseinheit in WooCommerce
-DocType: woocommerce Settings,Map woocommerce Tax / Shipping to ERPNext Account,Zuordnung WooCommerce Steuern und Lieferbedingungen
-DocType: woocommerce Settings,Tax Rules,Steuerregeln
-DocType: woocommerce Settings,Sales Order Series,Ausgangsrechnungsnummernkreis
-DocType: woocommerce Settings,Import Delivery Notes from woocommerce on Shipment,Lieferscheine von WooCommerce importieren
-DocType: woocommerce Settings,Import Sales Invoice from woocommerce if Payment is marked,Ausgangsrechnungen von WooCommerce importieren
+DocType: WooCommerce Config,WooCommerce Config,WooCommerce Einstellungen
+DocType: WooCommerce Config,Last sync request was successful,Letzte Synchronisation war erfolgreich
+DocType: WooCommerce Config,Enable woocommerce,WooCommerce aktivieren
+DocType: WooCommerce Config,Sync WooCommerce,WooCommerce abgleichen
+DocType: WooCommerce Config,Sync WooCommerce Ids to ERP,WooCommerce-IDs ins ERP laden
+DocType: WooCommerce Config,WooCommerce Log,WooCommerce Protokoll
+DocType: WooCommerce Config,Reset Last Sync Date,Letztes Synchronisationsdatum zurücksetzen
+DocType: WooCommerce Config,Uncheck to run with self signed certificate,Abwählen um mit eigenen Zertifikaten zu arbeiten
+DocType: WooCommerce Config,Hourly synchronization,Stündliche Synchronisation
+DocType: WooCommerce Config,Shop URL,WooCommerce URL
+DocType: WooCommerce Config,"Sync Item Price, from seleted Price List with woocommerce",Preise mit dieser Preislisten synchronisieren
+DocType: WooCommerce Config,If not exists create item to woocommerce,In WooCommerce erstellen falls Artikel nicht existiert
+DocType: WooCommerce Config,"If woocommerce not contains a customer in Order, then while syncing Orders, the system will consider default customer for order",Falls der Kunde nicht in der Bestellung enthalten ist diesen Kunden verwenden
+DocType: WooCommerce Config,Customer Group will set to selected group while syncing customers from woocommerce,Standard-Kundengruppe für den Kundenabgleich
+DocType: WooCommerce Config,Cash Account will used for Sales Invoice creation,Bargeld-Konto für Ausgangsrechnungserstellung
+DocType: WooCommerce Config,"Sync Item Quantity, from seleted Warehouse with woocommerce",Für die Synchronisation der Lagermenge
+DocType: WooCommerce Config,"To sync Item Quantity, from more than one Warehouse with woocommerce, use the following table (optionaly)",Zusätzliche Lagerorte für die Synchronisation (optional)
+DocType: WooCommerce Config,Woocommerce Weight unit,Gewichtseinheit in WooCommerce
+DocType: WooCommerce Config,Woocommerce Dimensions unit,Dimensionseinheit in WooCommerce
+DocType: WooCommerce Config,Map woocommerce Tax / Shipping to ERPNext Account,Zuordnung WooCommerce Steuern und Lieferbedingungen
+DocType: WooCommerce Config,Tax Rules,Steuerregeln
+DocType: WooCommerce Config,Sales Order Series,Ausgangsrechnungsnummernkreis
+DocType: WooCommerce Config,Import Delivery Notes from woocommerce on Shipment,Lieferscheine von WooCommerce importieren
+DocType: WooCommerce Config,Import Sales Invoice from woocommerce if Payment is marked,Ausgangsrechnungen von WooCommerce importieren

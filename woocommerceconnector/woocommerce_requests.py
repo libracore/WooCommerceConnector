@@ -21,14 +21,14 @@ _per_page=100
 #        time.sleep(10)    # pause 10 seconds
 
 def get_woocommerce_settings():
-    d = frappe.get_doc("woocommerce Settings")
+    d = frappe.get_doc("WooCommerce Config")
     
     if d.woocommerce_url:
         d.api_secret = d.get_password(fieldname='api_secret')
         return d.as_dict()
     
     else:
-        frappe.throw(_("woocommerce store URL is not configured on woocommerce Settings"), woocommerceError)
+        frappe.throw(_("woocommerce store URL is not configured on WooCommerce Config"), woocommerceError)
 
 def get_request_request(path, settings=None):
         if not settings:
@@ -40,7 +40,7 @@ def get_request_request(path, settings=None):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         r = wcapi.get(path)
@@ -60,7 +60,7 @@ def post_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         
@@ -78,7 +78,7 @@ def put_request(path, data):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=5000
         )
         #frappe.log_error("{0} data: {1}".format(path, str(data)))
@@ -96,7 +96,7 @@ def delete_request(path):
                 consumer_secret=settings['api_secret'],
                 verify_ssl=settings['verify_ssl'],
                 wp_api=True,
-                version="wc/v2",
+                version="wc/v3",
                 timeout=1000
         )
         r = wcapi.post(path)
