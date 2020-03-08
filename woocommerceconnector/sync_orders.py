@@ -110,6 +110,19 @@ def create_new_customer_of_guest(woocommerce_order):
     cust_info = woocommerce_order.get("billing")
         
     try:
+        # try to match territory
+        country_name = get_country_name(woocommerce_order["billing"]["country"])
+        debug_match_code = ""
+        if frappe.db.exists("Territory", country_name):
+            territory = country_name
+            debug_match_code = "T1"
+        else:
+            territory = frappe.utils.nestedset.get_root_of("Territory")
+            debug_match_code = "T2"
+        make_woocommerce_log(title="Territory detection " + debug_match_code, status="Success", method="create_new_customer_of_guest", 
+            message="country_code: {0}, country_matches: {1}, territory: {2}".format(woocommerce_order["billing"]["country"], country_name, territory), 
+            request_data=woocommerce_order, exception=True)
+        
         customer = frappe.get_doc({
             "doctype": "Customer",
             "name": cust_id,
@@ -117,7 +130,7 @@ def create_new_customer_of_guest(woocommerce_order):
             "woocommerce_customer_id": cust_id,
             "sync_with_woocommerce": 0,
             "customer_group": woocommerce_settings.customer_group,
-            "territory": frappe.utils.nestedset.get_root_of("Territory"),
+            "territory": territory,
             "customer_type": _("Individual")
         })
         customer.flags.ignore_mandatory = True
