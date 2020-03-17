@@ -32,7 +32,7 @@ def sync_woocommerce_orders():
                         make_woocommerce_log(status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
                             request_data=woocommerce_order, exception=True)
                     except Exception as e:
-                        if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
+                        if e.args and e.args[0] and e.args[0].startswith("402"):
                             raise e
                         else:
                             make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
@@ -188,6 +188,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
     so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
     if not so:
+        customer = frappe.get_doc("Customer", customer)
         # get applicable tax rule from configuration
         tax_rules = frappe.get_all("WooCommerce Tax Rule", filters={'currency': woocommerce_order.get("currency")}, fields=['tax_rule'])
         if not tax_rules:
@@ -201,8 +202,8 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "doctype": "Sales Order",
             "naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
             "woocommerce_order_id": woocommerce_order.get("id"),
-            "customer": customer,
-            "customer_group": woocommerce_settings.customer_group,  # hard code group, as this was missing since v12
+            "customer": customer.name,
+            "customer_group": customer.customer_group,  # woocommerce_settings.customer_group,  # hard code group, as this was missing since v12
             "delivery_date": nowdate(),
             "company": woocommerce_settings.company,
             "selling_price_list": woocommerce_settings.price_list,
