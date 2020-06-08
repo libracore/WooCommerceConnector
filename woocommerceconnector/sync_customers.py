@@ -132,6 +132,18 @@ def create_customer_address(customer, woocommerce_customer):
 
 def create_customer_contact(customer, woocommerce_customer):
     try :
+        email_ids = []
+        if woocommerce_customer["billing"]["email"]:
+            email_ids.append({
+                "email_id": woocommerce_customer["billing"]["email"],
+                "is_primary": 1
+            })
+        phone_nos = []
+        if woocommerce_customer["billing"]["phone"]:
+            phone_nos.append({
+                "phone": woocommerce_customer["billing"]["phone"],
+                "is_primary_phone": 1
+            })
         frappe.get_doc({
             "doctype": "Contact",
             "first_name": woocommerce_customer["billing"]["first_name"],
@@ -141,7 +153,9 @@ def create_customer_contact(customer, woocommerce_customer):
             "links": [{
                 "link_doctype": "Customer",
                 "link_name": customer.name
-            }]
+            }],
+            "email_ids": email_ids,
+            "phone_nos": phone_nos
         }).insert()
 
     except Exception as e:
