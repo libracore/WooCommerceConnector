@@ -531,6 +531,10 @@ def get_variant_attributes(item, price_list, warehouse):
 
 def get_price_and_stock_details(item, warehouse, price_list):
     qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "actual_qty")
+    # remove reserved qty if enabled
+    if int(frappe.get_value("WooCommerce Settings", "WooCommerce Settings", stock_with_reserved) or 0) == 1:
+        qty = qty - frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "reserved_qty")
+        
     price = frappe.db.get_value("Item Price", \
             {"price_list": price_list, "item_code":item.get("item_code")}, "price_list_rate")
 
@@ -649,10 +653,14 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
         else:
             bin = get_bin(item_code, woocommerce_settings.warehouse)
             qty = bin.actual_qty
+            if woocommerce_settings.stock_with_reserved:
+                qty = qty - bin.reserved_qty
             for warehouse in woocommerce_settings.warehouses:
                 _bin = get_bin(item_code, warehouse.warehouse)
                 qty += _bin.actual_qty
-
+                if woocommerce_settings.stock_with_reserved:
+                    qty = qty - _bin.reserved_qty
+                
             # bugfix #1582: variant control from WooCommerce, not ERPNext
             if item.woocommerce_variant_id and int(item.woocommerce_variant_id) > 0:
                 item_data, resource = get_product_update_dict_and_resource(item.woocommerce_product_id, item.woocommerce_variant_id, is_variant=True, actual_qty=qty)
