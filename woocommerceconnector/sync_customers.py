@@ -148,7 +148,7 @@ def create_customer_contact(customer, woocommerce_customer):
         contact_matches = frappe.get_all("Contact", 
                                          filters={'first_name': woocommerce_customer["billing"]["first_name"],
                                                   'last_name': woocommerce_customer["billing"]["last_name"],
-                                                  'email_id': woocommerce_customer["billing"]["email"]}
+                                                  'email_id': woocommerce_customer["billing"]["email"]},
                                          fields=['name'])
         if not contact_matches:
             frappe.get_doc({
