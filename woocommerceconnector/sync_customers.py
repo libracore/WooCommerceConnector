@@ -166,7 +166,7 @@ def create_customer_contact(customer, woocommerce_customer):
             }).insert()
         else:
             # link existing contact
-            contact = frappe.get_doc("Contact", contact_matches[0]['name']
+            contact = frappe.get_doc("Contact", contact_matches[0]['name'])
             if contact.links:
                 contact.links.append({
                     "link_doctype": "Customer",
