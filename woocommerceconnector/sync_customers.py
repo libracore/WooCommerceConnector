@@ -164,6 +164,20 @@ def create_customer_contact(customer, woocommerce_customer):
                 "email_ids": email_ids,
                 "phone_nos": phone_nos
             }).insert()
+        else:
+            # link existing contact
+            contact = frappe.get_doc("Contact", contact_matches[0]['name']
+            if contact.links:
+                contact.links.append({
+                    "link_doctype": "Customer",
+                    "link_name": customer.name
+                })
+            else:
+                contact.links =  [{
+                    "link_doctype": "Customer",
+                    "link_name": customer.name
+                }]
+            contact.save()
 
     except Exception as e:
         make_woocommerce_log(title=e, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
