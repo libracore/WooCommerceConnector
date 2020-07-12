@@ -51,7 +51,7 @@ name=None, request_data={}):
 			log = frappe.get_doc({"doctype":"woocommerce Log"}).insert(ignore_permissions=True)
 			
 		log.message = message if message else frappe.get_traceback()
-		log.title = (title or "-")[0:140]
+		log.title = ("{0}".format(title or "-"))[0:140]
 		log.method = method
 		log.status = status
 		log.request_data= json.dumps(request_data)
