@@ -406,9 +406,9 @@ def close_synced_woocommerce_order(wooid):
 # this feature tries to match a repeating guest customer to an existing ERPNext customer
 def match_customer(woocommerce_order):
     cust_info = woocommerce_order.get("billing")
-    customer = "{0} {1}".format(cust_info["first_name"], cust_info["last_name"]).replace("'", "\'")
-    address = cust_info["address_1"].replace("'", "\'")
-    pincode = cust_info["postcode"].replace("'", "\'")
+    customer = "{0} {1}".format(cust_info["first_name"], cust_info["last_name"]).replace("'", r"\'")
+    address = cust_info["address_1"].replace("'", r"\'")
+    pincode = cust_info["postcode"].replace("'", r"\'")
     sql_query = """SELECT `tabCustomer`.`name`, `tabCustomer`.`customer_name`, `tabAddress`.`address_line1`, `tabAddress`.`pincode` 
         FROM `tabDynamic Link` 
         LEFT JOIN `tabCustomer` ON `tabCustomer`.`name` = `tabDynamic Link`.`link_name`
