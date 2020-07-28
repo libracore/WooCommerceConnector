@@ -21,6 +21,7 @@
   "erp_settings",
   "price_list",
   "if_not_exists_create_item_to_woocommerce",
+  "sync_items_from_woocommerce_to_erp",
   "default_item_group",
   "column_break_8",
   "default_customer",
@@ -104,7 +105,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "eg: frappe.mywoocommerce.com",
+   "description": "eg: https://libracore.mywoocommerce.com",
    "fieldname": "woocommerce_url",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -153,7 +154,13 @@
    "default": "0",
    "fieldname": "if_not_exists_create_item_to_woocommerce",
    "fieldtype": "Check",
-   "label": "If not exists create item to woocommerce"
+   "label": "If item does not exist, create item in woocommerce"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_items_from_woocommerce_to_erp",
+   "fieldtype": "Check",
+   "label": "Sync items from WooCommerce to ERPNext"
   },
   {
    "fieldname": "default_item_group",
@@ -326,7 +333,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2020-01-28 13:19:58.226891",
+ "modified": "2020-07-28 10:03:58.226891",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",
