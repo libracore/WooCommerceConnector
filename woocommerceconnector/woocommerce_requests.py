@@ -6,6 +6,7 @@ from .exceptions import woocommerceError
 from frappe.utils import get_request_session, get_datetime, get_time_zone
 from woocommerce import API
 from .utils import make_woocommerce_log
+import requests
 
 _per_page=100
 
@@ -45,7 +46,15 @@ def get_request_request(path, settings=None):
         )
         r = wcapi.get(path)
         
-        r.raise_for_status()
+        #r.raise_for_status()
+        # manually raise for status to get more info from error (message details)
+        if r.status_code != requests.codes.ok:
+            make_woocommerce_log(title="WooCommerce get error {0}".format(r.status_code), 
+                status="Error", 
+                method="get_request", 
+                message="{0}: {1}".format(r.url, r.json()),
+                request_data=data, 
+                exception=True)
         return r
     
 def get_request(path, settings=None):
@@ -66,7 +75,16 @@ def post_request(path, data):
         
         r = wcapi.post(path, data)
         
-        r.raise_for_status()
+        #r.raise_for_status()
+        # manually raise for status to get more info from error (message details)
+        if r.status_code != requests.codes.ok:
+            make_woocommerce_log(title="WooCommerce post error {0}".format(r.status_code), 
+                status="Error", 
+                method="post_request", 
+                message="{0}: {1}".format(r.url, r.json()),
+                request_data=data, 
+                exception=True)
+
         return r.json()
 
 def put_request(path, data):
@@ -81,10 +99,19 @@ def put_request(path, data):
                 version="wc/v3",
                 timeout=5000
         )
-        #frappe.log_error("{0} data: {1}".format(path, str(data)))
+        #frappe.log_error("{0} data: {1}".format(path, data))
         r = wcapi.put(path, data)
         
-        r.raise_for_status()
+        #r.raise_for_status()
+        # manually raise for status to get more info from error (message details)
+        if r.status_code != requests.codes.ok:
+            make_woocommerce_log(title="WooCommerce put error {0}".format(r.status_code), 
+                status="Error", 
+                method="put_request", 
+                message="{0}: {1}".format(r.url, r.json()),
+                request_data=data, 
+                exception=True)
+
         return r.json()
 
 def delete_request(path):
