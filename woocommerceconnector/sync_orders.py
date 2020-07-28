@@ -11,18 +11,17 @@ import requests.exceptions
 import base64, requests, datetime, os
 
 
-def sync_orders():
-    sync_woocommerce_orders()
+def sync_orders(woocommerce_settings):
+    sync_woocommerce_orders(woocommerce_settings)
 
-def sync_woocommerce_orders():
+def sync_woocommerce_orders(woocommerce_settings):
     frappe.local.form_dict.count_dict["orders"] = 0
-    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     for woocommerce_order in get_woocommerce_orders():
         if woocommerce_order.get("status").lower() == "processing":
             so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
             if not so:
-                if valid_customer_and_product(woocommerce_order):
+                if valid_customer_and_product(woocommerce_order, woocommerce_settings):
                     try:
                         create_order(woocommerce_order, woocommerce_settings)
                         frappe.local.form_dict.count_dict["orders"] += 1
@@ -39,10 +38,10 @@ def sync_woocommerce_orders():
             # close this order as synced
             close_synced_woocommerce_order(woocommerce_order.get("id"))
                 
-def valid_customer_and_product(woocommerce_order):
+def valid_customer_and_product(woocommerce_order, woocommerce_settings):
     if woocommerce_order.get("status").lower() == "cancelled":
         return False
-    warehouse = frappe.get_doc("WooCommerce Config", "WooCommerce Config").warehouse
+    warehouse = woocommerce_settings.warehouse
     for item in woocommerce_order.get("line_items"):
         if item.get("sku"):
             if not frappe.db.get_value("Item", {"barcode": item.get("sku")}, "item_code"):
@@ -83,17 +82,15 @@ def valid_customer_and_product(woocommerce_order):
         if not frappe.db.get_value("Customer", {"woocommerce_customer_id": "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))}, "name", False,True):
             make_woocommerce_log(title="create new customer based on guest order", status="Started", method="valid_customer_and_product", message="creat new customer based on guest order",
                 request_data=woocommerce_order, exception=False)
-            create_new_customer_of_guest(woocommerce_order)
+            create_new_customer_of_guest(woocommerce_order, woocommerce_settings)
 
     return True
 
 def get_country_from_code(country_code):
     return frappe.db.get_value("Country", {"code": country_code}, "name")
 
-def create_new_customer_of_guest(woocommerce_order):
+def create_new_customer_of_guest(woocommerce_order, woocommerce_settings):
     import frappe.utils.nestedset
-
-    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     cust_id = "Guest of Order-ID: {0}".format(woocommerce_order.get("id"))
     cust_info = woocommerce_order.get("billing")
@@ -315,7 +312,7 @@ def update_taxes_with_shipping_lines(taxes, shipping_lines, woocommerce_settings
         #
         taxes.append({
             "charge_type": _("Actual"),
-            "account_head": get_shipping_account_head(shipping_charge),
+            "account_head": get_shipping_account_head(shipping_charge, woocommerce_settings),
             "description": shipping_charge["method_title"],
             "tax_amount": shipping_charge["total"],
             "cost_center": woocommerce_settings.cost_center
@@ -325,11 +322,11 @@ def update_taxes_with_shipping_lines(taxes, shipping_lines, woocommerce_settings
 
 
 
-def get_shipping_account_head(shipping):
+def get_shipping_account_head(shipping, woocommerce_settings):
         shipping_title = shipping.get("method_title").encode("utf-8")
 
         shipping_account =  frappe.db.get_value("woocommerce Tax Account", \
-                {"parent": "WooCommerce Config", "woocommerce_tax": shipping_title}, "tax_account")
+                {"parent": woocommerce_settings.name, "woocommerce_tax": shipping_title}, "tax_account")
 
         if not shipping_account:
                 frappe.throw("Tax Account not specified for woocommerce shipping method  {0}".format(shipping.get("method_title")))
@@ -337,25 +334,25 @@ def get_shipping_account_head(shipping):
         return shipping_account
 
 
-def get_tax_account_head(tax):
+def get_tax_account_head(tax, woocommerce_settings):
     tax_title = tax.get("name").encode("utf-8") or tax.get("method_title").encode("utf-8")
 
     tax_account =  frappe.db.get_value("woocommerce Tax Account", \
-        {"parent": "WooCommerce Config", "woocommerce_tax": tax_title}, "tax_account")
+        {"parent": woocommerce_settings.name, "woocommerce_tax": tax_title}, "tax_account")
 
     if not tax_account:
         frappe.throw("Tax Account not specified for woocommerce Tax {0}".format(tax.get("name")))
 
     return tax_account
 
-def close_synced_woocommerce_orders():
+def close_synced_woocommerce_orders(config):
     for woocommerce_order in get_woocommerce_orders():
         if woocommerce_order.get("status").lower() != "cancelled":
             order_data = {
                 "status": "completed"
             }
             try:
-                put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
+                put_request("orders/{0}".format(woocommerce_order.get("id")), order_data, config)
                     
             except requests.exceptions.HTTPError as e:
                 make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),

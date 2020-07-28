@@ -5,28 +5,26 @@ import requests.exceptions
 from .woocommerce_requests import get_woocommerce_customers, post_request, put_request
 from .utils import make_woocommerce_log
 
-def sync_customers():
+def sync_customers(woocommerce_settings):
     woocommerce_customer_list = []
-    sync_woocommerce_customers(woocommerce_customer_list)
+    sync_woocommerce_customers(woocommerce_customer_list, woocommerce_settings)
     frappe.local.form_dict.count_dict["customers"] = len(woocommerce_customer_list)
 
-def sync_woocommerce_customers(woocommerce_customer_list):
+def sync_woocommerce_customers(woocommerce_customer_list, woocommerce_settings):
     for woocommerce_customer in get_woocommerce_customers():
         # import new customer or update existing customer
         if not frappe.db.get_value("Customer", {"woocommerce_customer_id": woocommerce_customer.get('id')}, "name"):
             #only synch customers with address
             if woocommerce_customer.get("billing").get("address_1") != "" and woocommerce_customer.get("shipping").get("address_1") != "":
-                create_customer(woocommerce_customer, woocommerce_customer_list)
+                create_customer(woocommerce_customer, woocommerce_customer_list, woocommerce_settings)
         else:
             update_customer(woocommerce_customer)
 
 def update_customer(woocommerce_customer):
     return
 
-def create_customer(woocommerce_customer, woocommerce_customer_list):
+def create_customer(woocommerce_customer, woocommerce_customer_list, woocommerce_settings):
     import frappe.utils.nestedset
-
-    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     cust_name = (woocommerce_customer.get("first_name") + " " + (woocommerce_customer.get("last_name") \
         and  woocommerce_customer.get("last_name") or "")) if woocommerce_customer.get("first_name")\

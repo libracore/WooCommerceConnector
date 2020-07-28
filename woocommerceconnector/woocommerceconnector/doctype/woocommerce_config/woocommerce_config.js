@@ -75,13 +75,14 @@ frappe.ui.form.on("WooCommerce Config", {
 
             frm.add_custom_button(__('Sync WooCommerce'), function() {
                 frappe.call({
-                    method:"woocommerceconnector.api.sync_woocommerce",
+                    method: "woocommerceconnector.api.sync_woocommerce",
+                    args: {'config': frm.doc.name}
                 })
             }).addClass("btn-primary");
             
             frm.add_custom_button(__("Sync WooCommerce IDs to ERP"), function(){
                 frappe.call({
-                    method:"woocommerceconnector.api.sync_woocommerce_ids",
+                    method: "woocommerceconnector.api.sync_woocommerce_ids"
                 })
             })
         }
