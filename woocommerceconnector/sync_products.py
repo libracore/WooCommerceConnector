@@ -36,7 +36,7 @@ def sync_woocommerce_items(warehouse, woocommerce_item_list):
                     request_data=woocommerce_item, exception=True)
 
 def make_item(warehouse, woocommerce_item, woocommerce_item_list):
-    frappe.log_error("woocommerce_item: {0}".format(woocommerce_item), "make_item")
+    
     if has_variants(woocommerce_item):
         #replace woocommerce variants id array with actual variant info
         woocommerce_item['variants'] = get_woocommerce_item_variants(woocommerce_item.get("id"))
@@ -79,7 +79,7 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,vari
         "weight_per_unit": woocommerce_item.get("weight")
     }
     item_dict["web_long_description"] = item_dict["woocommerce_description"]
-    frappe.log_error("item_dict: {0}".format(item_dict), "create_item")
+    
     if not is_item_exists(item_dict, attributes, variant_of=variant_of, woocommerce_item_list=woocommerce_item_list):
         item_details = get_item_details(woocommerce_item)
 
@@ -226,7 +226,7 @@ def create_attribute(woocommerce_item):
                     for attr_value in attr.get("options")
                 ]
             }).insert()
-            attribute.append({"attribute": attr.get("name")})
+            attribute.append({"attribute": attr.get("name"), "attribute_value": attr.get("options")[0]})
         else:
             # check for attribute values
             item_attr = frappe.get_doc("Item Attribute", attr.get("name"))
@@ -235,7 +235,7 @@ def create_attribute(woocommerce_item):
                                 item_attr.woocommerce_attribute_id = attr.get("id")
                 set_new_attribute_values(item_attr,  attr.get("options"))
                 item_attr.save()
-                attribute.append({"attribute": attr.get("name")})
+                attribute.append({"attribute": attr.get("name"), "attribute_value": attr.get("options")[0]})
 
             #else:
                 #attribute.append({
