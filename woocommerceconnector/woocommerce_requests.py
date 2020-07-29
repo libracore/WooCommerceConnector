@@ -53,7 +53,7 @@ def get_request_request(path, settings=None):
                 status="Error", 
                 method="get_request", 
                 message="{0}: {1}".format(r.url, r.json()),
-                request_data=data, 
+                request_data="not defined", 
                 exception=True)
         return r
     
