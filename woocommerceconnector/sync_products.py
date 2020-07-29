@@ -36,7 +36,7 @@ def sync_woocommerce_items(warehouse, woocommerce_item_list):
                     request_data=woocommerce_item, exception=True)
 
 def make_item(warehouse, woocommerce_item, woocommerce_item_list):
-
+    frappe.log_error("woocommerce_item: {0}".format(woocommerce_item), "make_item")
     if has_variants(woocommerce_item):
         #replace woocommerce variants id array with actual variant info
         woocommerce_item['variants'] = get_woocommerce_item_variants(woocommerce_item.get("id"))
@@ -79,7 +79,7 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,vari
         "weight_per_unit": woocommerce_item.get("weight")
     }
     item_dict["web_long_description"] = item_dict["woocommerce_description"]
-
+    frappe.log_error("item_dict: {0}".format(item_dict), "create_item")
     if not is_item_exists(item_dict, attributes, variant_of=variant_of, woocommerce_item_list=woocommerce_item_list):
         item_details = get_item_details(woocommerce_item)
 
@@ -120,10 +120,12 @@ def create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_va
             }
 
             woocommerce_variants_attr_list = variant.get("attributes")
-            for i, variant_attr in enumerate(woocommerce_variants_attr_list):
-                woocommerce_item_variant["name"] = woocommerce_item_variant["name"] + "-" + str(variant_attr.get("option"))
-                attributes[i].update({"attribute_value": get_attribute_value(variant_attr.get("option"), variant_attr)})
-            
+            # create attribute list based on attribute name as key
+            for variant in woocommerce_variants_attr_list:
+                for attr in attributes:
+                    if attr['attribute'] == variant['name']:
+                        attr['attribute_value'] = get_attribute_value(variant.get("option"), variant)
+                        break
             create_item(woocommerce_item_variant, warehouse, 0, attributes, template_item.name, woocommerce_item_list=woocommerce_item_list)
 
 #fix this
