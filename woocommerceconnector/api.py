@@ -20,8 +20,16 @@ def check_hourly_sync():
 
 @frappe.whitelist()
 def sync_woocommerce():
-	"Enqueue longjob for syncing woocommerce"
-	enqueue("woocommerceconnector.api.sync_woocommerce_resources", queue='long', timeout=1500)
+	"""Enqueue longjob for syncing woocommerce"""
+    woocommerce_settings = frappe.get_doc("WooCommerce Config")
+    if woocommerce_settings.sync_timeout == 0:
+        woocommerce_settings.sync_timeout = 1500
+        woocommerce_settings.save()
+    timeout = woocommerce_settings.sync_timeout or 1500
+    # apply minimal timeout of 60 sec
+    if timeout < 60:
+        timeout = 60
+	enqueue("woocommerceconnector.api.sync_woocommerce_resources", queue='long', timeout=timeout)
 	frappe.msgprint(_("Queued for syncing. It may take a few minutes to an hour if this is your first sync."))
 
 @frappe.whitelist()

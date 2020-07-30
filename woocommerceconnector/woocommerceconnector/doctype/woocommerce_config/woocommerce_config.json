@@ -51,7 +51,9 @@
   "delivery_note_series",
   "sync_sales_invoice",
   "sales_invoice_series",
-  "import_payment"
+  "import_payment",
+  "section_advanced",
+  "sync_timeout"
  ],
  "fields": [
   {
@@ -330,10 +332,22 @@
    "fieldname": "import_payment",
    "fieldtype": "Check",
    "label": "Import Payments"
+  },
+  {
+   "fieldname": "section_advanced",
+   "fieldtype": "Section Break",
+   "label": "Advanced"
+  },
+  {
+   "default": "1500",
+   "description": "Timeout for sync background process",
+   "fieldname": "sync_timeout",
+   "fieldtype": "Int",
+   "label": "Sync timeout"
   }
  ],
  "issingle": 1,
- "modified": "2020-07-28 10:03:58.226891",
+ "modified": "2020-07-30 07:33:33.361808",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",
