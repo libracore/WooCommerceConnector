@@ -272,18 +272,20 @@ def add_to_price_list(item, name):
     price_list = frappe.db.get_value("WooCommerce Config", None, "price_list")
     item_price_name = frappe.db.get_value("Item Price",
         {"item_code": name, "price_list": price_list}, "name")
-
-    if not item_price_name:
-        frappe.get_doc({
-            "doctype": "Item Price",
-            "price_list": price_list,
-            "item_code": name,
-            "price_list_rate": item.get("price") or item.get("item_price")
-        }).insert()
-    else:
-        item_rate = frappe.get_doc("Item Price", item_price_name)
-        item_rate.price_list_rate = item.get("price")  or item.get("item_price")
-        item_rate.save()
+    rate = item.get("price") or item.get("item_price") or 0
+    if float(rate) > 0:
+        # only apply price if it is bigger than 0
+        if not item_price_name:
+            frappe.get_doc({
+                "doctype": "Item Price",
+                "price_list": price_list,
+                "item_code": name,
+                "price_list_rate": rate
+            }).insert()
+        else:
+            item_rate = frappe.get_doc("Item Price", item_price_name)
+            item_rate.price_list_rate = rate
+            item_rate.save()
 
 def get_item_image(woocommerce_item):
     if woocommerce_item.get("images"):
