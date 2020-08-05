@@ -62,7 +62,7 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,vari
         "variant_of": variant_of,
         "sync_with_woocommerce": 1,
         "is_stock_item": 1,
-        "item_code": str(woocommerce_item.get("id")) + " " + woocommerce_item.get("name"),
+        "item_code": str(woocommerce_item.get("id")), #+ " " + woocommerce_item.get("name"),
         "item_name": woocommerce_item.get("name"),
         "valuation_method": valuation_method,
         "description": woocommerce_item.get("description") or woocommerce_item.get("name"),
