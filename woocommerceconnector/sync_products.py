@@ -43,13 +43,15 @@ def make_item(warehouse, woocommerce_item, woocommerce_item_list):
         
         attributes = create_attribute(woocommerce_item)
         create_item(woocommerce_item, warehouse, 1, attributes, woocommerce_item_list=woocommerce_item_list)
-        create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_variants_attr_list, woocommerce_item_list=woocommerce_item_list)
+        create_item_variants(woocommerce_item, warehouse, woocommerce_variants_attr_list, woocommerce_item_list=woocommerce_item_list)
 
     else:
         """woocommerce_item["variant_id"] = woocommerce_item['variants'][0]["id"]"""
-        create_item(woocommerce_item, warehouse, woocommerce_item_list=woocommerce_item_list)
+        attributes = create_attribute(woocommerce_item)
+        create_item(woocommerce_item, warehouse, attributes, woocommerce_item_list=woocommerce_item_list)
+        
 
-def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,variant_of=None, woocommerce_item_list=[]):
+def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,variant_of=None, woocommerce_item_list=[], template_item=None):
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     valuation_method = woocommerce_settings.get("valuation_method")
     weight_unit =  woocommerce_settings.get("weight_unit")
@@ -70,20 +72,28 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None,vari
         "woocommerce_short_description": woocommerce_item.get("short_description") or woocommerce_item.get("name"),
         "item_group": get_item_group(woocommerce_item.get("categories")),
         "has_variants": has_variant,
-        "attributes":attributes or [],
+        "attributes": attributes or [],
         "stock_uom": woocommerce_item.get("uom") or _("Nos"),
         "stock_keeping_unit": woocommerce_item.get("sku"), #or get_sku(woocommerce_item),
         "default_warehouse": warehouse,
         "image": get_item_image(woocommerce_item),
-        "weight_uom":  weight_unit, #woocommerce_item.get("weight_unit"),
+        "weight_uom": weight_unit, #woocommerce_item.get("weight_unit"),
         "weight_per_unit": woocommerce_item.get("weight")
     }
+    #template
+    if has_variant:
+        item_dict["segory"] = get_categories(woocommerce_item)
+
+    else:
+        item_dict["product_category"] = get_categories(template_item)
+
     item_dict["web_long_description"] = item_dict["woocommerce_description"]
     
     if not is_item_exists(item_dict, attributes, variant_of=variant_of, woocommerce_item_list=woocommerce_item_list):
         item_details = get_item_details(woocommerce_item)
 
         if not item_details:
+            
             new_item = frappe.get_doc(item_dict)
             new_item.insert()
             name = new_item.name
@@ -108,7 +118,7 @@ def create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_va
                 "id" : variant.get("id"),
                 "woocommerce_variant_id" : variant.get("id"),
                 "name": woocommerce_item.get("name"),
-                "item_code":  str(variant.get("id")) + " " + woocommerce_item.get("name"),
+                "item_code":  str(variant.get("id")), # + " " + woocommerce_item.get("name"),
                 "title": variant.get("name"),
                 "item_group": get_item_group(woocommerce_item.get("")),
                 "sku": variant.get("sku"),
@@ -127,7 +137,17 @@ def create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_va
                         attr['attribute_value'] = get_attribute_value(variant.get("option"), variant)
                         break
             create_item(woocommerce_item_variant, warehouse, 0, attributes, 
-                        variant_of=template_item.name, woocommerce_item_list=woocommerce_item_list)
+                        variant_of=template_item.name, woocommerce_item_list=woocommerce_item_list, template_item=template_item)
+                        
+#add childtable with categories into items
+def get_categories(woocommerce_item):
+    categories = []
+    try:
+        for category in woocommerce_item.get("categories"):
+            categories.append({'category': category.get("name")})
+    except:
+        pass
+    return categories
 
 #fix this
 def is_item_exists(item_dict, attributes=None, variant_of=None, woocommerce_item_list=[]):
@@ -214,7 +234,7 @@ def set_new_attribute_values(item_attr, values):
         for d in item_attr.item_attribute_values):
             item_attr.append("item_attribute_values", {
                 "attribute_value": attr_value,
-                "abbr": attr_value
+                "abbr": attr_value[:140]
             })
 
 def get_attribute_value(variant_attr_val, attribute):
