@@ -17,6 +17,9 @@ def sync_woocommerce_customers(woocommerce_customer_list):
             #only synch customers with address
             if woocommerce_customer.get("billing").get("address_1") != "" and woocommerce_customer.get("shipping").get("address_1") != "":
                 create_customer(woocommerce_customer, woocommerce_customer_list)
+            else:
+                make_woocommerce_log(title="customer without address", status="Error", method="create_customer",
+                    message= "customer without address found",request_data=woocommerce_customer, exception=False)
         else:
             update_customer(woocommerce_customer)
 
@@ -124,14 +127,21 @@ def create_customer_address(customer, woocommerce_customer):
             make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
 
+# TODO: email and phone into child table
 def create_customer_contact(customer, woocommerce_customer):
     try :
         frappe.get_doc({
             "doctype": "Contact",
             "first_name": woocommerce_customer["billing"]["first_name"],
             "last_name": woocommerce_customer["billing"]["last_name"],
-            "email_id": woocommerce_customer["billing"]["email"],
-            "phone": woocommerce_customer["billing"]["phone"],
+            "email_ids": [{
+                "email_id": woocommerce_customer["billing"]["email"],
+                "is_primary": 1
+            }],
+            "phone_nos": [{
+                "phone": woocommerce_customer["billing"]["phone"],
+                "is_primary_phone": 1
+            }],
             "links": [{
                 "link_doctype": "Customer",
                 "link_name": customer.name
