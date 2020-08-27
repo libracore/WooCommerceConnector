@@ -18,9 +18,18 @@ frappe.ui.form.on("WooCommerce Config", {
         frm.toggle_reqd("api_key", (frm.doc.app_type == "Private"));
         frm.toggle_reqd("password", (frm.doc.app_type == "Private"));
     },
+    item_code_based_on: function(frm) {
+        if (cur_frm.doc.item_code_based_on == 'Naming Series') {
+            cur_frm.set_df_property("item_code_naming_series", "reqd", '1');
+        } else {
+            cur_frm.set_df_property("item_code_naming_series", "reqd", 0);
+        }
+    },
     refresh: function(frm){
-		// set filters
-		frm.fields_dict["warehouse"].get_query = function(doc) {
+        
+            
+        // set filters
+        frm.fields_dict["warehouse"].get_query = function(doc) {
             return {
                 filters:{
                     "company": doc.company,
@@ -58,8 +67,8 @@ frappe.ui.form.on("WooCommerce Config", {
                 }
             }
         }
-		
-		// toggle fields
+        
+        // toggle fields
         if(!frm.doc.__islocal && frm.doc.enable_woocommerce === 1){
             frm.toggle_reqd("price_list", true);
             frm.toggle_reqd("warehouse", true);
@@ -72,6 +81,7 @@ frappe.ui.form.on("WooCommerce Config", {
             
             frm.toggle_reqd("sales_invoice_series", frm.doc.sync_sales_invoice);
             frm.toggle_reqd("delivery_note_series", frm.doc.sync_delivery_note);
+            
 
             frm.add_custom_button(__('Sync WooCommerce'), function() {
                 frappe.call({
@@ -86,7 +96,7 @@ frappe.ui.form.on("WooCommerce Config", {
             })
         }
 
-		// add buttons
+        // add buttons
         frm.add_custom_button(__("WooCommerce Log"), function(){
             frappe.set_route("List", "woocommerce Log");
         })

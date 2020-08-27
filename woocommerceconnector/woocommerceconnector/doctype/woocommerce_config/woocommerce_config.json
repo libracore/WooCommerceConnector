@@ -22,10 +22,13 @@
   "price_list",
   "if_not_exists_create_item_to_woocommerce",
   "sync_items_from_woocommerce_to_erp",
+  "sync_item_qty_from_erpnext_to_woocommerce",
   "default_item_group",
   "column_break_8",
   "default_customer",
   "customer_group",
+  "item_code_based_on",
+  "item_code_naming_series",
   "company_dependent_settings",
   "company",
   "cash_bank_account",
@@ -39,6 +42,7 @@
   "weight_unit",
   "column_break_29",
   "dimensions_unit",
+  "attribute_for_uom",
   "section_break_31",
   "html_16",
   "taxes",
@@ -344,10 +348,35 @@
    "fieldname": "sync_timeout",
    "fieldtype": "Int",
    "label": "Sync timeout"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.sync_items_from_woocommerce_to_erp==1",
+   "fieldname": "sync_item_qty_from_erpnext_to_woocommerce",
+   "fieldtype": "Check",
+   "label": "Sync item QTY from ERPNext to WooCommerce"
+  },
+  {
+   "fieldname": "attribute_for_uom",
+   "fieldtype": "Data",
+   "label": "Attribute for UOM"
+  },
+  {
+   "fieldname": "item_code_based_on",
+   "fieldtype": "Select",
+   "label": "Item code based on..",
+   "options": "WooCommerce ID\nWooCommerce ID + Name\nWooCommerce Name\nRandom Hash\nNaming Series",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.item_code_based_on=='Naming Series'",
+   "fieldname": "item_code_naming_series",
+   "fieldtype": "Select",
+   "label": "Item code naming series"
   }
  ],
  "issingle": 1,
- "modified": "2020-07-30 07:33:33.361808",
+ "modified": "2020-08-24 13:48:32.983272",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",

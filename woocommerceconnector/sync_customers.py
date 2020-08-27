@@ -17,6 +17,9 @@ def sync_woocommerce_customers(woocommerce_customer_list):
             #only synch customers with address
             if woocommerce_customer.get("billing").get("address_1") != "" and woocommerce_customer.get("shipping").get("address_1") != "":
                 create_customer(woocommerce_customer, woocommerce_customer_list)
+            else:
+                make_woocommerce_log(title="customer without address", status="Error", method="create_customer",
+                    message= "customer without address found",request_data=woocommerce_customer, exception=False)
         else:
             update_customer(woocommerce_customer)
 
