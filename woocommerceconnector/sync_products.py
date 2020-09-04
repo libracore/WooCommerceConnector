@@ -13,11 +13,14 @@ import base64, requests, datetime, os
 woocommerce_variants_attr_list = ["option1", "option2", "option3"]
 
 def sync_products(price_list, warehouse, sync_from_woocommerce=False):
+    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     woocommerce_item_list = []
     if sync_from_woocommerce:
         sync_woocommerce_items(warehouse, woocommerce_item_list)
     frappe.local.form_dict.count_dict["products"] = len(woocommerce_item_list)
     #sync_erpnext_items(price_list, warehouse, woocommerce_item_list)
+    if woocommerce_settings.rewrite_stock_uom_from_wc_unit == 1:
+        rewrite_stock_uom_from_wc_unit()
 
 def sync_woocommerce_items(warehouse, woocommerce_item_list):
     for woocommerce_item in get_woocommerce_items():
@@ -782,3 +785,35 @@ def add_w_id_to_erp():
             frappe.db.commit()
     make_woocommerce_log(title="IDs synced", status="Success", method="add_w_id_to_erp", message={},
         request_data={}, exception=True)
+
+def rewrite_stock_uom_from_wc_unit():
+    woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
+    sql_query = """SELECT *
+        FROM (SELECT 
+          `tabItem`.`item_code`, 
+          `tabItem`.`stock_uom` ,
+          (SELECT `tabItem Variant Attribute`.`attribute_value` 
+           FROM `tabItem Variant Attribute` 
+           WHERE `tabItem Variant Attribute`.`parent` = `tabItem`.`name` 
+             AND `tabItem Variant Attribute`.`attribute` = "{unit}") AS `unit` 
+        FROM `tabItem`
+        ) AS `raw`
+        WHERE 
+          `raw`.`unit` IS NOT NULL
+          AND `raw`.`stock_uom` != `raw`.`unit`;""".format(unit=woocommerce_settings.attribute_for_uom)
+    # get all items that have different WC unit from stock_uom      
+    different_unit_items = frappe.db.sql(sql_query, as_dict=True)
+    # if there are items, rewrite them
+    if len(different_unit_items) > 0:
+        # loop through items
+        for i in different_unit_items:
+            item = frappe.get_doc("Item", i.item_code)
+            try:
+                item.stock_uom = i.unit
+                item.save()
+            except Exception as err:
+                make_woocommerce_log(title="WC rewrite stock uom", status="Error", method="rewrite_stock_uom_from_wc_unit", 
+                        message="Unabe to rewrite stock of item {0} from {1} to {2}: {3}".format(i.item_code, i.stock_uom, i.unit, err),
+                        request_data=None, exception=True)
+        frappe.db.commit()
+    return
