@@ -137,10 +137,11 @@ def get_erpnext_uom(woocommerce_item, woocommerce_settings, attributes=[]):
     if len(attributes) > 0:
         for attr in attributes:
             if attr["attribute"] == woocommerce_settings.attribute_for_uom:
-                uom_match = frappe.get_all("UOM", filters={'uom_name': attr["attribute_value"]}, fields=['name'])
+                uom_match = frappe.get_all("UOM", filters={'uom_name': "{0}".format(attr["attribute_value"])}, fields=['name'])
                 if len(uom_match) > 0:
                     return attr["attribute_value"]
                 else:
+                    frappe.log_error("{0} {1}".format(attr, woocommerce_item))
                     new_uom = frappe.get_doc({
                         'doctype': 'UOM',
                         'uom_name': attr["attribute_value"]
@@ -258,6 +259,7 @@ def has_variants(woocommerce_item):
         return True
     return False
 
+# this function makes sure that all attributes exist in ERPNext as "Item Attribute"
 def create_attribute(woocommerce_item):
     attribute = []
     # woocommerce item dict
@@ -321,6 +323,11 @@ def get_attribute_value(variant_attr_val, attribute):
     attribute_value = frappe.db.sql("""select attribute_value from `tabItem Attribute Value`
         where parent = %s and (abbr = %s or attribute_value = %s)""", (attribute["name"], variant_attr_val,
         variant_attr_val), as_list=1)
+    # check if this is really not available due to numeric value or if it is from changing attributes after creation
+    if len(attribute_value) == 0 and ("{0}".format(cint(variant_attr_val)) != "{0}".format(variant_attr_val)):
+        frappe.log_error("Attribute value mismatch: {attr}: {value} (potential change in attribute?".format(attr=attribute, 
+            value=variant_attr_val), "WooCommerce Attribute Mismatch")
+        return "{0}".format(variant_attr_val)
     return attribute_value[0][0] if len(attribute_value)>0 else cint(variant_attr_val)
 
 def get_item_group(product_type=None):
