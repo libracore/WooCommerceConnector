@@ -88,7 +88,7 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, var
     
     # in case of naming series (item_code = None), set naming series
     if not item_code:
-        item_dict['naming_series'] = woocommerce_settings.item_code_namings_series
+        item_dict['naming_series'] = woocommerce_settings.item_code_naming_series
         
     if template_item:
         #variants
