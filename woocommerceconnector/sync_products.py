@@ -67,7 +67,6 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, var
         "variant_of": variant_of,
         "sync_with_woocommerce": 1,
         "is_stock_item": 1,
-        "item_code": item_code,
         "item_name": woocommerce_item.get("name"),
         "valuation_method": valuation_method,
         "description": woocommerce_item.get("description") or woocommerce_item.get("name"),
@@ -89,6 +88,10 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, var
     # in case of naming series (item_code = None), set naming series
     if not item_code:
         item_dict['naming_series'] = woocommerce_settings.item_code_naming_series
+        # for variants, apply WooCommerce ID (because naming series is not applicable)
+        item_dict['item_code'] = str(woocommerce_item.get("id"))
+    else:
+        item_dict['item_code'] = item_code
         
     if template_item:
         #variants
