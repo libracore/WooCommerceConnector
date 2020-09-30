@@ -291,7 +291,8 @@ def create_attribute(woocommerce_item):
             # check for attribute values
             item_attr = frappe.get_doc("Item Attribute", attr.get("name"))
             if not item_attr.numeric_values:
-                if not item_attr.get("woocommerce_attribute_id"):
+            # line below hinders insert of new attribute values for existing attributes
+            #    if not item_attr.get("woocommerce_attribute_id"):
                     item_attr.woocommerce_attribute_id = attr.get("id")
                     item_attr = set_new_attribute_values(item_attr, attr.get("options"))
                     item_attr.save()
