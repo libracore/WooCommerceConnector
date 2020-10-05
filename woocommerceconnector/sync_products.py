@@ -317,7 +317,7 @@ def create_attribute(woocommerce_item):
 
 def set_new_attribute_values(item_attr, values):
     for attr_value in values:
-        if not any((d.abbr.lower() == attr_value.lower() or d.attribute_value.lower() == attr_value.lower())\
+        if not any((d.abbr.lower() == attr_value[:140].lower() or d.attribute_value.lower() == attr_value[:140].lower())\
         for d in item_attr.item_attribute_values):
             item_attr.append("item_attribute_values", {
                 "attribute_value": attr_value[:140],
