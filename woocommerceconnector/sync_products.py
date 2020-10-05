@@ -240,7 +240,7 @@ def is_item_exists(item_dict, attributes=None, variant_of=None, woocommerce_item
 def update_item(item_details, item_dict):
     item = frappe.get_doc("Item", item_details['name'])
         
-    item_dict["stock_uom"] = item_details['stock_uom']
+    #item_dict["stock_uom"] = item_details['stock_uom']
 
     if not item_dict["web_long_description"]:
         del item_dict["web_long_description"]
@@ -254,6 +254,8 @@ def update_item(item_details, item_dict):
     del item_dict["item_name"]
     if "attributes" in item_dict:
         del item_dict["attributes"]
+    if "stock_uom" in item_dict:
+        del item_dict["stock_uom"]
 
     item.update(item_dict)
     item.flags.ignore_mandatory = True
