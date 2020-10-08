@@ -296,8 +296,10 @@ def create_attribute(woocommerce_item):
             # line below hinders insert of new attribute values for existing attributes
             #    if not item_attr.get("woocommerce_attribute_id"):
                     item_attr.woocommerce_attribute_id = attr.get("id")
+                    old_len = len(item_attr.item_attribute_values)
                     item_attr = set_new_attribute_values(item_attr, attr.get("options"))
-                    item_attr.save()
+                    if len(item_attr.item_attribute_values) > old_len:    # only save item attributes if they have changed
+                        item_attr.save()
             if len(attr.get("options")[0]) > 140:
                 attribute_value = attr.get("options")[0][:140]
             else:
