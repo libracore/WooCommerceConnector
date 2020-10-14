@@ -19,7 +19,8 @@ def sync_woocommerce_orders():
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     
     for woocommerce_order in get_woocommerce_orders():
-        if woocommerce_order.get("status").lower() == "processing":
+        woocommerce_order_status = woocommerce_order.get("status").lower()
+        if woocommerce_order_status == "processing" or woocommerce_order_status == "processing-invoic":
             so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
             if not so:
                 if valid_customer_and_product(woocommerce_order):
