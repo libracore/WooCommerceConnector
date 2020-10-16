@@ -20,7 +20,7 @@ def sync_woocommerce_orders():
     
     for woocommerce_order in get_woocommerce_orders():
         woocommerce_order_status = woocommerce_order.get("status").lower()
-        if woocommerce_order_status == "processing" or woocommerce_order_status == "processing-invoic":
+        if woocommerce_order_status == "processing" or woocommerce_order_status == "processing-invoic" or woocommerce_order_status == "failed" or woocommerce_order_status == "in-vorauszahlung":
             so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
             if not so:
                 if valid_customer_and_product(woocommerce_order):
@@ -173,6 +173,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "doctype": "Sales Order",
             "naming_series": woocommerce_settings.sales_order_series or "SO-woocommerce-",
             "woocommerce_order_id": woocommerce_order.get("id"),
+            "woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
             "customer": customer,
             "customer_group": woocommerce_settings.customer_group,  # hard code group, as this was missing since v12
             "delivery_date": nowdate(),
