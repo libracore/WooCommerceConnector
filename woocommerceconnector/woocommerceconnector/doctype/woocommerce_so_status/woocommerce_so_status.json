@@ -1,0 +1,29 @@
+{
+ "creation": "2020-10-19 11:02:52.362919",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-10-19 11:02:52.362919",
+ "modified_by": "Administrator",
+ "module": "WooCommerceConnector",
+ "name": "WooCommerce SO Status",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

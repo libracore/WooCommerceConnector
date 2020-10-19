@@ -51,6 +51,7 @@
   "tax_rules",
   "section_break_25",
   "sales_order_series",
+  "woocommerce_so_status",
   "column_break_27",
   "sync_delivery_note",
   "delivery_note_series",
@@ -380,10 +381,16 @@
    "fieldname": "rewrite_stock_uom_from_wc_unit",
    "fieldtype": "Check",
    "label": "rewrite stock uom from wc unit"
+  },
+  {
+   "fieldname": "woocommerce_so_status",
+   "fieldtype": "Table",
+   "label": "WooCommerce SO Status for Import",
+   "options": "WooCommerce SO Status"
   }
  ],
  "issingle": 1,
- "modified": "2020-09-04 10:32:26.089317",
+ "modified": "2020-10-19 11:05:14.087879",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",

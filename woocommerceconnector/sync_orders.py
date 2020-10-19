@@ -17,10 +17,12 @@ def sync_orders():
 def sync_woocommerce_orders():
     frappe.local.form_dict.count_dict["orders"] = 0
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
+    woocommerce_order_status_for_import = get_woocommerce_order_status_for_import()
     
     for woocommerce_order in get_woocommerce_orders():
         woocommerce_order_status = woocommerce_order.get("status").lower()
-        if woocommerce_order_status == "processing" or woocommerce_order_status == "processing-invoic" or woocommerce_order_status == "failed" or woocommerce_order_status == "in-vorauszahlung":
+        
+        if woocommerce_order_status in woocommerce_order_status_for_import:
             so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
             if not so:
                 if valid_customer_and_product(woocommerce_order):
@@ -40,6 +42,13 @@ def sync_woocommerce_orders():
             # close this order as synced
             close_synced_woocommerce_order(woocommerce_order.get("id"))
                 
+def get_woocommerce_order_status_for_import():
+    status_list = []
+    _status_list = frappe.db.sql("""SELECT `status` FROM `tabWooCommerce SO Status`""", as_dict=True)
+    for status in _status_list:
+        status_list.append(status.status)
+    return status_list
+
 def valid_customer_and_product(woocommerce_order):
     if woocommerce_order.get("status").lower() == "cancelled":
         return False
