@@ -68,13 +68,13 @@ def valid_customer_and_product(woocommerce_order):
 			
 	# new function item based on product id
     for item in woocommerce_order.get("line_items"):
-        if item.get("id"):
-            if not frappe.db.get_value("Item", {"woocommerce_product_id": item.get("id")}, "item_code"):
-                make_woocommerce_log(title="Item missing in ERPNext!", status="Error", method="valid_customer_and_product", message="Item with id {0} is missing in ERPNext! The Order {1} will not be imported! For details of order see below".format(item.get("id"), woocommerce_order.get("id")),
+        if item.get("product_id"):
+            if not frappe.db.get_value("Item", {"woocommerce_product_id": item.get("product_id")}, "item_code"):
+                make_woocommerce_log(title="Item missing in ERPNext!", status="Error", method="valid_customer_and_product", message="Item with id {0} is missing in ERPNext! The Order {1} will not be imported! For details of order see below".format(item.get("product_id"), woocommerce_order.get("id")),
                     request_data=woocommerce_order, exception=True)
                 return False
         else:
-            make_woocommerce_log(title="Item id missing in WooCommerce!", status="Error", method="valid_customer_and_product", message="Item id is missing in WooCommerce! The Order {0} will not be imported! For details of order see below".format(woocommerce_order.get("id")),
+            make_woocommerce_log(title="Item id missing in WooCommerce!", status="Error", method="valid_customer_and_product", message="Item id is missing in WooCommerce! The Order {0} will not be imported! For details of order see below".format(woocommerce_order.get("product_id")),
                 request_data=woocommerce_order, exception=True)
             return False
     
@@ -208,7 +208,6 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             # disabled discount as WooCommerce will send this both in the item rate and as discount
             #"apply_discount_on": "Net Total",
             #"discount_amount": flt(woocommerce_order.get("discount_total") or 0),
-            "woocommerce_payment_method": woocommerce_order.get("payment_method_title"),
             "currency": woocommerce_order.get("currency"),
             "taxes_and_charges": tax_rules
         })
@@ -301,7 +300,7 @@ def get_item_code(woocommerce_item):
     #item_code = frappe.db.get_value("Item", {"barcode": woocommerce_item.get("sku")}, "item_code")
     
     # new function: get item code based on woocommerce_product_id
-    item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("id")}, "item_code")
+    item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("product_id")}, "item_code")
 
     return item_code
 
