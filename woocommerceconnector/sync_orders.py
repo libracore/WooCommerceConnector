@@ -296,11 +296,12 @@ def get_order_items(order_items, woocommerce_settings):
     return items
 
 def get_item_code(woocommerce_item):
-    # old function: get item code based on sku
-    #item_code = frappe.db.get_value("Item", {"barcode": woocommerce_item.get("sku")}, "item_code")
-    
-    # new function: get item code based on woocommerce_product_id
-    item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("product_id")}, "item_code")
+    if cint(woocommerce_item.get("variation_id")) > 0:
+        # variation
+        item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("variation_id")}, "item_code")
+    else:
+        # single
+        item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("product_id")}, "item_code")
 
     return item_code
 
