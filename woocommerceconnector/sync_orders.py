@@ -314,7 +314,7 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
         name = woocommerce_tax.get("name")
         
         taxes.append({
-            "charge_type": _("Actual"),
+            "charge_type": _("On Net Total"),
             "account_head": get_tax_account_head(woocommerce_tax),
             "description": "{0} - {1}%".format(name, rate),
             "rate": rate,
