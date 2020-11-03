@@ -84,7 +84,6 @@ def post_request(path, data):
                 message="{0}: {1}".format(r.url, r.json()),
                 request_data=data, 
                 exception=True)
-
         return r.json()
 
 def put_request(path, data):
