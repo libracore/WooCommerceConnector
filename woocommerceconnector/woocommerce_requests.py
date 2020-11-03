@@ -163,8 +163,8 @@ def get_woocommerce_items(ignore_filter_conditions=False):
     woocommerce_products = []
 
     filter_condition = ''
-    #if not ignore_filter_conditions:
-        #filter_condition = get_filtering_condition()
+    if not ignore_filter_conditions:
+        filter_condition = get_filtering_condition()
 
     response = get_request_request('products?per_page={0}&{1}'.format(_per_page,filter_condition) )
     woocommerce_products.extend(response.json())
