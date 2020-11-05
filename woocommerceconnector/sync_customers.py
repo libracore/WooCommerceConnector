@@ -81,13 +81,20 @@ def create_customer_address(customer, woocommerce_customer):
     if billing_address:
         country = get_country_name(billing_address.get("country"))
         try :
+            # special requirement (2020-11-05): if company defined, set this as address line 1
+            if billing_address.get("company"):
+                address_1 = billing_address.get("company")
+                address_2 = billing_address.get("address_1")
+            else:
+                address_1 = billing_address.get("address_1") or "Address 1"
+                address_2 = billing_address.get("address_2")
             frappe.get_doc({
                 "doctype": "Address",
                 "woocommerce_address_id": "Billing",
                 "address_title": customer.name,
                 "address_type": "Billing",
-                "address_line1": billing_address.get("address_1") or "Address 1",
-                "address_line2": billing_address.get("address_2"),
+                "address_line1": address_1,
+                "address_line2": address_2,
                 "city": billing_address.get("city") or "City",
                 "state": billing_address.get("state"),
                 "pincode": billing_address.get("postcode"),
@@ -107,6 +114,13 @@ def create_customer_address(customer, woocommerce_customer):
     if shipping_address:
         country = get_country_name(shipping_address.get("country"))
         try :
+            # special requirement (2020-11-05): if company defined, set this as address line 1
+            if shipping_address.get("company"):
+                address_1 = shipping_address.get("company")
+                address_2 = shipping_address.get("address_1")
+            else:
+                address_1 = shipping_address.get("address_1") or "Address 1"
+                address_2 = shipping_address.get("address_2")
             frappe.get_doc({
                 "doctype": "Address",
                 "woocommerce_address_id": "Shipping",
