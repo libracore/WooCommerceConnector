@@ -715,7 +715,7 @@ def get_weight_in_woocommerce_unit(weight, weight_uom):
 def trigger_update_item_stock(doc, method):
     if doc.flags.via_stock_ledger_entry:
         woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
-        if woocommerce_settings.woocommerce_url and woocommerce_settings.enable_woocommerce:
+        if woocommerce_settings.woocommerce_url and woocommerce_settings.enable_woocommerce and woocommerce_settings.trigger_update_item_stock:
             update_item_stock(doc.item_code, woocommerce_settings, doc)
 
 def update_item_stock_qty():
