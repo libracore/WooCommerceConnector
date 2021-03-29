@@ -18,11 +18,11 @@ def sync_woocommerce_orders():
     frappe.local.form_dict.count_dict["orders"] = 0
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     woocommerce_order_status_for_import = get_woocommerce_order_status_for_import()
-    
-    for woocommerce_order in get_woocommerce_orders():
-        woocommerce_order_status = woocommerce_order.get("status").lower()
+    if not len(woocommerce_order_status_for_import) > 0:
+        woocommerce_order_status_for_import = ['processing']
         
-        if woocommerce_order_status in woocommerce_order_status_for_import:
+    for woocommerce_order_status in woocommerce_order_status_for_import:
+        for woocommerce_order in get_woocommerce_orders(woocommerce_order_status):
             so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
             if not so:
                 if valid_customer_and_product(woocommerce_order):

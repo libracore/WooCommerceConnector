@@ -207,19 +207,14 @@ def get_woocommerce_customer(woocommerce_customer_id):
     return get_request("customers/{0}".format(woocommerce_customer_id))
 
 
-def get_woocommerce_orders(ignore_filter_conditions=False):
+def get_woocommerce_orders(order_status):
     woocommerce_orders = []
 
-    filter_condition = ''
-
-    if not ignore_filter_conditions:
-        filter_condition = get_filtering_condition()
-    
-    response = get_request_request('orders?per_page={0}&{1}'.format(_per_page,filter_condition))
+    response = get_request_request('orders?per_page={0}&status={1}'.format(_per_page,order_status))
     woocommerce_orders.extend(response.json())
         
     for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
-        response = get_request_request('orders?per_page={0}&page={1}&{2}'.format(_per_page,page_idx+1,filter_condition))
+        response = get_request_request('orders?per_page={0}&page={1}&status={2}'.format(_per_page,page_idx+1,order_status))
         woocommerce_orders.extend(response.json())
 
     return woocommerce_orders
