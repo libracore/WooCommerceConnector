@@ -35,7 +35,7 @@ def get_woocommerce_settings():
         )
 
 
-def get_request_request(path, settings=None):
+def get_request_request(path, settings=None, params=None):
     if not settings:
         settings = get_woocommerce_settings()
 
@@ -48,7 +48,7 @@ def get_request_request(path, settings=None):
         version="wc/v3",
         timeout=1000,
     )
-    r = wcapi.get(path)
+    r = wcapi.get(path, params=params)
 
     # r.raise_for_status()
     # manually raise for status to get more info from error (message details)
