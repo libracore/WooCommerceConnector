@@ -253,16 +253,22 @@ def get_woocommerce_orders(order_status):
 
     response = get_request_request(
         "orders",
-        params={"per_page": _per_page, "status": order_status},
+        params={
+            "per_page": _per_page,
+            "status": order_status,
+        },
     )
     extend_if_ok(response)
 
     total_pages = int(response.headers.get("X-WP-TotalPages") or 1)
     for page_idx in range(1, total_pages):
         response = get_request_request(
-            "orders?per_page={0}&page={1}&status={2}".format(
-                _per_page, page_idx + 1, order_status
-            )
+            "orders",
+            params={
+                "per_page": _per_page,
+                "page": page_idx,
+                "status": order_status,
+            },
         )
         extend_if_ok(response)
 
