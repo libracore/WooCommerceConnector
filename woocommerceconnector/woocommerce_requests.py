@@ -266,7 +266,7 @@ def get_woocommerce_orders(order_status):
             "orders",
             params={
                 "per_page": _per_page,
-                "page": page_idx,
+                "page": page_idx + 1,
                 "status": order_status,
             },
         )
