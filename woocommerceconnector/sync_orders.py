@@ -469,8 +469,7 @@ def create_delivery_note(woocommerce_order, woocommerce_settings, so):
             frappe.db.commit()
 
 
-def get_fulfillment_items(dn_items, fulfillment_items, woocommerce_settings):
-
+def get_fulfillment_items(dn_items, fulfillment_items):
     return [
         dn_item.update({"qty": item.get("quantity")})
         for item in fulfillment_items
