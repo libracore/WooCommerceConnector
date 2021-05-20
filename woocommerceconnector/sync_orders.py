@@ -60,12 +60,12 @@ def sync_woocommerce_orders():
                         if (
                             e.args
                             and e.args[0]
-                            and e.args[0].decode("utf-8").startswith("402")
+                            and e.args[0].startswith("402")
                         ):
-                            raise e
+                            frappe.log_error(frappe.get_traceback(), 'sync orders')
                         else:
                             make_woocommerce_log(
-                                title=e.message,
+                                title=e.message if hasattr(e, 'message') else str(e),
                                 status="Error",
                                 method="sync_woocommerce_orders",
                                 message=frappe.get_traceback(),
