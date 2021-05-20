@@ -72,8 +72,7 @@ def sync_woocommerce_resources():
                 if woocommerce_settings.sync_items_from_woocommerce_to_erp == 1
                 else False,
             )
-            sync_customers()
-            sync_orders()
+            sync_customers_and_orders()
             # close_synced_woocommerce_orders() # DO NOT GLOBALLY CLOSE
             if woocommerce_settings.sync_item_qty_from_erpnext_to_woocommerce:
                 update_item_stock_qty()
@@ -177,3 +176,10 @@ def sync_woocommerce_ids():
             "Queued for syncing. It may take a few minutes to an hour if this is your first sync."
         )
     )
+
+
+def sync_customers_and_orders():
+    if not frappe.local.form_dict.count_dict:
+        frappe.local.form_dict.count_dict = {"customers": 0, "orders": 0}
+    sync_customers()
+    sync_orders()
