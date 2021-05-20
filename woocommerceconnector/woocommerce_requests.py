@@ -161,14 +161,16 @@ def get_header(settings):
 """
 
 
-def get_filtering_condition():
+def get_filtering_condition(only_query_value=False):
     woocommerce_settings = get_woocommerce_settings()
     if woocommerce_settings.last_sync_datetime:
-
-        last_sync_datetime = get_datetime(woocommerce_settings.last_sync_datetime)
-
+        last_sync_datetime = get_datetime(
+            woocommerce_settings.last_sync_datetime
+        ).isoformat()
+        if only_query_value:
+            return last_sync_datetime
         # uncomment for live
-        return "after={0}".format(last_sync_datetime.isoformat())
+        return "after={0}".format(last_sync_datetime)
     return ""
 
 
@@ -185,19 +187,22 @@ def get_woocommerce_items(ignore_filter_conditions=False):
 
     filter_condition = ""
     if not ignore_filter_conditions:
-        filter_condition = get_filtering_condition()
+        filter_condition = get_filtering_condition(True)
 
     response = get_request_request(
-        "products?per_page={0}&{1}".format(_per_page, filter_condition)
+        "products", params={"per_page": _per_page, "after": filter_condition}
     )
     extend_if_ok(response)
 
     total_pages = int(response.headers.get("X-WP-TotalPages") or 1)
     for page_idx in range(1, total_pages):
         response = get_request_request(
-            "products?per_page={0}&page={1}&{2}".format(
-                _per_page, page_idx + 1, filter_condition
-            )
+            "products",
+            params={
+                "per_page": _per_page,
+                "page": page_idx + 1,
+                "after": filter_condition,
+            },
         )
         extend_if_ok(response)
 
