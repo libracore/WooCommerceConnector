@@ -41,12 +41,13 @@ def sync_woocommerce_orders():
                 {"woocommerce_order_id": woocommerce_order.get("id")},
                 "name",
             )
+            is_created = False
             if not so:
                 if valid_customer_and_product(woocommerce_order):
                     try:
                         create_order(woocommerce_order, woocommerce_settings)
                         frappe.local.form_dict.count_dict["orders"] += 1
-
+                        is_created = True
                     except woocommerceError as e:
                         make_woocommerce_log(
                             status="Error",
@@ -71,8 +72,8 @@ def sync_woocommerce_orders():
                                 request_data=woocommerce_order,
                                 exception=True,
                             )
-            # close this order as synced
-            close_synced_woocommerce_order(woocommerce_order.get("id"))
+            if is_created:
+                close_synced_woocommerce_order(woocommerce_order.get("id"))
 
 
 def get_woocommerce_order_status_for_import():
