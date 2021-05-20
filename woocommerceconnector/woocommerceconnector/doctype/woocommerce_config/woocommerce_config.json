@@ -114,7 +114,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "eg: https://libracore.mywoocommerce.com",
+   "description": "eg: https://9t9it.com",
    "fieldname": "woocommerce_url",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -153,7 +153,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "Sync Item Price, from seleted Price List with woocommerce",
+   "description": "Select price list to sync with WooCommerce",
    "fieldname": "price_list",
    "fieldtype": "Link",
    "label": "Price List",
@@ -163,7 +163,7 @@
    "default": "0",
    "fieldname": "if_not_exists_create_item_to_woocommerce",
    "fieldtype": "Check",
-   "label": "If item does not exist, create item in woocommerce"
+   "label": "If item does not exist, create item on WooCommerce"
   },
   {
    "default": "0",
@@ -182,14 +182,14 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "If woocommerce not contains a customer in Order, then while syncing Orders, the system will consider default customer for order",
+   "description": "If WooCommerce sales is on Guest customer then while syncing orders, ERPNext will use selected customer for order creation",
    "fieldname": "default_customer",
    "fieldtype": "Link",
    "label": "Default Customer",
    "options": "Customer"
   },
   {
-   "description": "Customer Group will set to selected group while syncing customers from woocommerce",
+   "description": "Customer Group will set to selected group while syncing customers from WooCommerce",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "label": "Customer Group",
@@ -206,7 +206,7 @@
    "options": "Company"
   },
   {
-   "description": "Cash Account will used for Sales Invoice creation",
+   "description": "Account to be used for Sales Invoice creation",
    "fieldname": "cash_bank_account",
    "fieldtype": "Link",
    "label": "Cash/Bank Account",
@@ -215,7 +215,7 @@
   {
    "fieldname": "fee_account",
    "fieldtype": "Link",
-   "label": "Woocommerce Fee Account",
+   "label": "WooCommerce Fee Account",
    "options": "Account",
    "reqd": 1
   },
@@ -237,14 +237,14 @@
    "options": "Cost Center"
   },
   {
-   "description": "Sync Item Quantity, from seleted Warehouse with woocommerce",
+   "description": "Set to sync item quantity from selected Warehouse with WooCommerce",
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
   },
   {
-   "description": "To sync Item Quantity, from more than one Warehouse with woocommerce, use the following table (optionaly)",
+   "description": "(Optional) Set multiple warehouse to sync item quantity with WooCommerce. Not Recommended, use with caution",
    "fieldname": "warehouses",
    "fieldtype": "Table",
    "label": "Warehouses",
@@ -257,7 +257,7 @@
   {
    "fieldname": "weight_unit",
    "fieldtype": "Link",
-   "label": "Woocommerce Weight unit",
+   "label": "(Optional) WooCommerce weight unit",
    "options": "UOM"
   },
   {
@@ -267,7 +267,7 @@
   {
    "fieldname": "dimensions_unit",
    "fieldtype": "Link",
-   "label": "Woocommerce Dimensions unit",
+   "label": "(Optional) WooCommerce dimensions unit",
    "options": "UOM"
   },
   {
@@ -313,7 +313,7 @@
    "default": "0",
    "fieldname": "sync_delivery_note",
    "fieldtype": "Check",
-   "label": "Import Delivery Notes from woocommerce on Shipment"
+   "label": "Import delivery notes from WooCommerce shipment"
   },
   {
    "depends_on": "eval:doc.sync_delivery_note==1",
@@ -325,7 +325,7 @@
    "default": "0",
    "fieldname": "sync_sales_invoice",
    "fieldtype": "Check",
-   "label": "Import Sales Invoice from woocommerce if Payment is marked"
+   "label": "Import Sales Invoice from WooCommerce if payment has been made"
   },
   {
    "depends_on": "eval:doc.sync_sales_invoice==1",
