@@ -718,12 +718,11 @@ def trigger_update_item_stock(doc, method):
         if woocommerce_settings.woocommerce_url and woocommerce_settings.enable_woocommerce and woocommerce_settings.trigger_update_item_stock:
             update_item_stock(doc.item_code, woocommerce_settings, doc)
 
-def update_item_stock_qty():
+def update_item_stock_qty(force=False):
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
-
     for item in frappe.get_all("Item", fields=["item_code"], filters={"sync_qty_with_woocommerce": '1', "disabled": ("!=", 1)}):
         try:
-            update_item_stock(item.item_code, woocommerce_settings)
+            update_item_stock(item.item_code, woocommerce_settings, force=force)
         except woocommerceError as e:
             make_woocommerce_log(title="{0}".format(e), status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                 request_data=item, exception=True)
@@ -735,7 +734,7 @@ def update_item_stock_qty():
                 make_woocommerce_log(title="{0}".format(e), status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                     request_data=item, exception=True)
 
-def update_item_stock(item_code, woocommerce_settings, bin=None):
+def update_item_stock(item_code, woocommerce_settings, bin=None, force=False):
     item = frappe.get_doc("Item", item_code)
     if item.sync_qty_with_woocommerce:
         if not item.woocommerce_product_id:
@@ -746,7 +745,7 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
             # check bin creation date
             last_sync_datetime = get_datetime(woocommerce_settings.last_sync_datetime)
             bin_since_last_sync = frappe.db.sql("""SELECT COUNT(`name`) FROM `tabBin` WHERE `item_code` = '{item_code}' AND `modified` > '{last_sync_datetime}'""".format(item_code=item_code, last_sync_datetime=last_sync_datetime), as_list=True)[0][0]
-            if bin_since_last_sync > 0:
+            if bin_since_last_sync > 0 or force != False:
                 bin = get_bin(item_code, woocommerce_settings.warehouse)
                 qty = bin.actual_qty
                 for warehouse in woocommerce_settings.warehouses:
