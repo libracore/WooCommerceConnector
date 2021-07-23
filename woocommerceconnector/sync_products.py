@@ -469,7 +469,7 @@ def sync_item_with_woocommerce(item, price_list, warehouse, woocommerce_item=Non
     item_data = {
             "name": item.get("item_name"),
             "description": item.get("woocommerce_description") or item.get("web_long_description") or item.get("description"),
-            "short_description": item.get("woocommerce_description") or item.get("web_long_description") or item.get("description"),
+            "short_description": item.get("description") or item.get("web_long_description") or item.get("woocommerce_description"),
     }
     item_data.update( get_price_and_stock_details(item, warehouse, price_list) )
 
@@ -625,7 +625,9 @@ def get_variant_attributes(item, price_list, warehouse):
     return variant_list, options, variant_item_name
 
 def get_price_and_stock_details(item, warehouse, price_list):
-    qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "actual_qty")
+    actual_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "actual_qty")
+    reserved_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "reserved_qty")
+    qty = actual_qty - reserved_qty
     price = frappe.db.get_value("Item Price", \
             {"price_list": price_list, "item_code":item.get("item_code")}, "price_list_rate")
 
@@ -747,10 +749,14 @@ def update_item_stock(item_code, woocommerce_settings, bin=None, force=False):
             bin_since_last_sync = frappe.db.sql("""SELECT COUNT(`name`) FROM `tabBin` WHERE `item_code` = '{item_code}' AND `modified` > '{last_sync_datetime}'""".format(item_code=item_code, last_sync_datetime=last_sync_datetime), as_list=True)[0][0]
             if bin_since_last_sync > 0 or force != False:
                 bin = get_bin(item_code, woocommerce_settings.warehouse)
-                qty = bin.actual_qty
+
+                actual_qty = bin.actual_qty
+                reserved_qty = bin.reserved_qty
+                qty = actual_qty - reserved_qty
+
                 for warehouse in woocommerce_settings.warehouses:
                     _bin = get_bin(item_code, warehouse.warehouse)
-                    qty += _bin.actual_qty
+                    qty += (_bin.actual_qty - _bin.reserved_qty)
 
 				# bugfix #1582: variant control from WooCommerce, not ERPNext
 				#if item.woocommerce_variant_id and int(item.woocommerce_variant_id) > 0:
