@@ -424,8 +424,8 @@ def create_sales_invoice(woocommerce_order, woocommerce_settings, so):
         si.flags.ignore_mandatory = True
         set_cost_center(si.items, woocommerce_settings.cost_center)
         si.submit()
-        if woocommerce_settings.import_payment == "1":
-            make_payament_entry_against_sales_invoice(si, woocommerce_settings)
+        if cint(woocommerce_settings.import_payment) == 1:
+            make_payment_entry_against_sales_invoice(si, woocommerce_settings)
         frappe.db.commit()
 
 
@@ -434,16 +434,16 @@ def set_cost_center(items, cost_center):
         item.cost_center = cost_center
 
 
-def make_payament_entry_against_sales_invoice(doc, woocommerce_settings):
+def make_payment_entry_against_sales_invoice(doc, woocommerce_settings):
     from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 
-    payemnt_entry = get_payment_entry(
+    payment_entry = get_payment_entry(
         doc.doctype, doc.name, bank_account=woocommerce_settings.cash_bank_account
     )
-    payemnt_entry.flags.ignore_mandatory = True
-    payemnt_entry.reference_no = doc.name
-    payemnt_entry.reference_date = nowdate()
-    payemnt_entry.submit()
+    payment_entry.flags.ignore_mandatory = True
+    payment_entry.reference_no = doc.name
+    payment_entry.reference_date = nowdate()
+    payment_entry.submit()
 
 
 def create_delivery_note(woocommerce_order, woocommerce_settings, so):
@@ -536,14 +536,14 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
         )
     # old code with conditional brutto/netto prices
     # taxes.append({
-    #     "charge_type": "On Net Total" if woocommerce_order.get("prices_include_tax") else "Actual",
-    #     "account_head": get_tax_account_head(woocommerce_tax),
-    #     "description": "{0} - {1}%".format(name, rate),
-    #     "rate": rate,
-    #     "tax_amount": flt(tax.get("tax_total") or 0) + flt(tax.get("shipping_tax_total") or 0),
-    #     "included_in_print_rate": 1 if woocommerce_order.get("prices_include_tax") else 0,
-    #     "cost_center": woocommerce_settings.cost_center
-    # })
+        #     "charge_type": "On Net Total" if woocommerce_order.get("prices_include_tax") else "Actual",
+        #     "account_head": get_tax_account_head(woocommerce_tax),
+        #     "description": "{0} - {1}%".format(name, rate),
+        #     "rate": rate,
+        #     "tax_amount": flt(tax.get("tax_total") or 0) + flt(tax.get("shipping_tax_total") or 0),
+        #     "included_in_print_rate": 1 if woocommerce_order.get("prices_include_tax") else 0,
+        #     "cost_center": woocommerce_settings.cost_center
+        # })
     taxes = update_taxes_with_fee_lines(
         taxes, woocommerce_order.get("fee_lines"), woocommerce_settings
     )
