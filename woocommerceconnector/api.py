@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 from .exceptions import woocommerceError
-from .sync_orders import sync_orders
+from .sync_orders import sync_orders, close_synced_woocommerce_orders
 from .sync_customers import sync_customers
 from .sync_products import sync_products, update_item_stock_qty
 from .utils import disable_woocommerce_sync_on_exception, make_woocommerce_log
