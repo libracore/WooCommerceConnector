@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import cstr
 from frappe import _
 import requests.exceptions
 from .exceptions import woocommerceError
