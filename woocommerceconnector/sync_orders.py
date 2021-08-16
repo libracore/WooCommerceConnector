@@ -215,7 +215,8 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "currency": woocommerce_order.get("currency"),
             "taxes_and_charges": tax_rules,
             "customer_address": billing_address,
-            "shipping_address_name": shipping_address
+            "shipping_address_name": shipping_address,
+            "posting_date": woocommerce_order.get("date_created")[:10]          # pull posting date from WooCommerce
         })
 
         so.flags.ignore_mandatory = True
