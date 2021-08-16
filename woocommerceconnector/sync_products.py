@@ -963,7 +963,7 @@ def trigger_update_item_stock(doc, method):
             update_item_stock(doc.item_code, woocommerce_settings, doc)
 
 
-def update_item_stock_qty():
+def update_item_stock_qty(force=False):
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
 
     for item in frappe.get_all(
@@ -972,7 +972,7 @@ def update_item_stock_qty():
         filters={"sync_qty_with_woocommerce": "1", "disabled": ("!=", 1)},
     ):
         try:
-            update_item_stock(item.item_code, woocommerce_settings)
+            update_item_stock(item.item_code, woocommerce_settings, force=force)
         except woocommerceError as e:
             make_woocommerce_log(
                 title="{0}".format(e),
@@ -997,7 +997,7 @@ def update_item_stock_qty():
                 )
 
 
-def update_item_stock(item_code, woocommerce_settings, bin=None):
+def update_item_stock(item_code, woocommerce_settings, bin=None, force=False):
     item = frappe.get_doc("Item", item_code)
     if item.sync_qty_with_woocommerce:
         if not item.woocommerce_product_id:
@@ -1021,7 +1021,7 @@ def update_item_stock(item_code, woocommerce_settings, bin=None):
                 ),
                 as_list=True,
             )[0][0]
-            if bin_since_last_sync > 0:
+            if bin_since_last_sync > 0 or force != False:
                 bin = get_bin(item_code, woocommerce_settings.warehouse)
                 qty = bin.actual_qty
                 for warehouse in woocommerce_settings.warehouses:
