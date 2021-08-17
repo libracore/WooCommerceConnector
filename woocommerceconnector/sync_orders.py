@@ -249,7 +249,7 @@ def get_country_name(code):
 def create_order(woocommerce_order, woocommerce_settings, company=None):
     so = create_sales_order(woocommerce_order, woocommerce_settings, company)
     # check if sales invoice should be created
-    if woocommerce_settings.sync_sales_invoice == "1":
+    if cint(woocommerce_settings.sync_sales_invoice) == 1:
         create_sales_invoice(woocommerce_order, woocommerce_settings, so)
 
     # Fix this -- add shipping stuff
