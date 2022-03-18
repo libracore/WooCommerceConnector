@@ -10,6 +10,7 @@ from frappe.utils import cstr, flt, cint, get_files_path
 from .woocommerce_requests import post_request, get_woocommerce_items,get_woocommerce_item_variants,  put_request, get_woocommerce_item_image
 import base64, requests, datetime, os
 from frappe.utils import get_datetime
+import json
 
 woocommerce_variants_attr_list = ["option1", "option2", "option3"]
 
@@ -349,8 +350,8 @@ def add_to_price_list(item, name):
     price_list = frappe.db.get_value("WooCommerce Config", None, "price_list")
     item_price_name = frappe.db.get_value("Item Price",
         {"item_code": name, "price_list": price_list}, "name")
-    rate = item.get("price") or item.get("item_price") or 0
-    if float(rate) > 0:
+    rate = item.get("sale_price") or item.get("price") or item.get("item_price") or 0
+    if float(rate) > 0 and frappe.db.exists("Item", name):
         # only apply price if it is bigger than 0
         if not item_price_name:
             frappe.get_doc({
@@ -850,4 +851,31 @@ def rewrite_stock_uom_from_wc_unit():
                         message="Unabe to rewrite stock of item {0} from {1} to {2}: {3}".format(i.item_code, i.stock_uom, i.unit, err),
                         request_data=None, exception=True)
         frappe.db.commit()
+    return
+
+# this function will force load all prices
+def force_load_prices(debug=False):
+    # prepare all items
+    if debug:
+        print("Loading items (no filter conditions)...")
+    items = get_woocommerce_items(ignore_filter_conditions=True)
+    for item in items:
+        # load prices
+        load_price(item, debug)
+        # check variations and also load prices
+        if len(item.get('variations')) > 0:
+            variants = get_woocommerce_item_variants(item.get('id'))
+            for v in variants:
+                load_price(v, debug)
+    return
+
+def load_price(item, debug=False):
+    # find item in ERP
+    erp_item_code = frappe.get_value("Item", 
+        {'woocommerce_product_id': item.get('id'), 'disabled': 0}, 'name')
+    if erp_item_code:
+        # create or update price
+        add_to_price_list(item, erp_item_code)
+        if debug:
+            print("Updated {0} with {1}".format(erp_item_code, item.get('price')))
     return
