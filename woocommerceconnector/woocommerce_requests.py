@@ -150,8 +150,7 @@ def get_filtering_condition():
 
         last_sync_datetime = get_datetime(woocommerce_settings.last_sync_datetime)
         
-        #uncomment for live
-        return "after={0}".format(last_sync_datetime.isoformat() )
+        return "modified_after={0}".format(last_sync_datetime.isoformat() )
     return ''
 
 
