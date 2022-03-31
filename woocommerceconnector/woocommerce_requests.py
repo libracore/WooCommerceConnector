@@ -7,6 +7,7 @@ from frappe.utils import get_request_session, get_datetime, get_time_zone
 from woocommerce import API
 from .utils import make_woocommerce_log
 import requests
+from frappe.utils import cint
 
 _per_page=100
 
@@ -35,11 +36,16 @@ def get_request_request(path, settings=None):
         if not settings:
                 settings = get_woocommerce_settings()
 
+        if cint(settings['verify_ssl']) == 1:
+            verify_ssl = True
+        else:
+            verify_ssl = False
+            
         wcapi = API(
                 url=settings['woocommerce_url'],
                 consumer_key=settings['api_key'],
                 consumer_secret=settings['api_secret'],
-                verify_ssl=settings['verify_ssl'],
+                verify_ssl=verify_ssl,
                 wp_api=True,
                 version="wc/v3",
                 timeout=1000
@@ -163,6 +169,8 @@ def get_woocommerce_items(ignore_filter_conditions=False):
     filter_condition = ''
     if not ignore_filter_conditions:
         filter_condition = get_filtering_condition()
+        if cint(frappe.get_value("WooCommerce Config", "WooCommerce Config", "sync_only_published")) == 1:
+            filter_condition += "&status=publish"
 
     response = get_request_request('products?per_page={0}&{1}'.format(_per_page,filter_condition) )
     woocommerce_products.extend(response.json())
@@ -181,14 +189,6 @@ def get_woocommerce_item_variants(woocommerce_product_id):
     response = get_request_request('products/{0}/variations?per_page={1}&{2}'.format(woocommerce_product_id,_per_page,filter_condition))
     woocommerce_product_variants.extend(response.json()) 
     
-
-    for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
-        response = get_request_request('products/{0}/variations?per_page={1}&page={2}&{3}'.format(woocommerce_product_id, _per_page, page_idx+1, filter_condition))
-        woocommerce_product_variants.extend(response.json())
-    
-    
-    return woocommerce_product_variants
-
     for page_idx in range(1, int( response.headers.get('X-WP-TotalPages')) or 1):
         response = get_request_request('products/{0}/variations?per_page={1}&page={2}&{3}'.format(woocommerce_product_id, _per_page, page_idx+1, filter_condition))
         woocommerce_product_variants.extend(response.json())

@@ -22,6 +22,7 @@
   "price_list",
   "if_not_exists_create_item_to_woocommerce",
   "sync_items_from_woocommerce_to_erp",
+  "sync_only_published",
   "sync_item_qty_from_erpnext_to_woocommerce",
   "default_item_group",
   "column_break_8",
@@ -80,7 +81,6 @@
    "description": "Uncheck to run with self signed certificate",
    "fieldname": "verify_ssl",
    "fieldtype": "Check",
-   "hidden": 1,
    "label": "Verify SSL"
   },
   {
@@ -394,10 +394,16 @@
    "fieldname": "trigger_update_item_stock",
    "fieldtype": "Check",
    "label": "Enable trigger to update item stock"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_only_published",
+   "fieldtype": "Check",
+   "label": "Only sync published items"
   }
  ],
  "issingle": 1,
- "modified": "2021-03-17 11:40:27.574647",
+ "modified": "2022-03-18 20:36:00.328416",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",
