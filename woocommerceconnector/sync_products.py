@@ -628,6 +628,10 @@ def get_variant_attributes(item, price_list, warehouse):
 def get_price_and_stock_details(item, warehouse, price_list):
     actual_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "actual_qty")
     reserved_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "reserved_qty")
+    if actual_qty is None:
+        actual_qty = 0
+    if reserved_qty is None:
+        reserved_qty = 0
     qty = actual_qty - reserved_qty
     price = frappe.db.get_value("Item Price", \
             {"price_list": price_list, "item_code":item.get("item_code")}, "price_list_rate")
@@ -753,6 +757,10 @@ def update_item_stock(item_code, woocommerce_settings, bin=None, force=False):
 
                 actual_qty = bin.actual_qty
                 reserved_qty = bin.reserved_qty
+		if actual_qty is None:
+                    actual_qty = 0
+                if reserved_qty is None:
+                    reserved_qty = 0
                 qty = actual_qty - reserved_qty
 
                 for warehouse in woocommerce_settings.warehouses:
