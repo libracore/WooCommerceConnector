@@ -628,9 +628,9 @@ def get_variant_attributes(item, price_list, warehouse):
 def get_price_and_stock_details(item, warehouse, price_list):
     actual_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "actual_qty")
     reserved_qty = frappe.db.get_value("Bin", {"item_code":item.get("item_code"), "warehouse": warehouse}, "reserved_qty")
-    qty = actual_qty - reserved_qty
-    price = frappe.db.get_value("Item Price", \
-            {"price_list": price_list, "item_code":item.get("item_code")}, "price_list_rate")
+    qty = (actual_qty or 0) - (reserved_qty or 0)
+    price = frappe.db.get_value("Item Price", 
+            {"price_list": price_list, "item_code": item.get("item_code")}, "price_list_rate")
 
     item_price_and_quantity = {
         "regular_price": "{0}".format(flt(price)) #only update regular price
