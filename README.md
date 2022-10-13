@@ -5,6 +5,7 @@ WooCommerce connector app for ERPNext. This connector allows  synchronisation of
 
 #### Installation
 SSH into ERPNext server and follow below commands
+
     $ cd /home/frappe/frappe-bench
 	$ bench get-app https://github.com/muzzy73/woocommerceconnector.git
 	$ bench install-app woocommerceconnector
