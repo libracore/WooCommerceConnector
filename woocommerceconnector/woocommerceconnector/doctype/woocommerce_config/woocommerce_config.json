@@ -74,7 +74,7 @@
    "default": "1",
    "fieldname": "enable_woocommerce",
    "fieldtype": "Check",
-   "label": "Enable woocommerce"
+   "label": "Enable WooCommerce"
   },
   {
    "default": "0",
@@ -87,7 +87,7 @@
    "default": "0",
    "fieldname": "hourly_sync",
    "fieldtype": "Check",
-   "label": "Hourly synchronization"
+   "label": "Tick for hourly synchronization"
   },
   {
    "default": "Public",
@@ -114,11 +114,11 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "eg: https://libracore.mywoocommerce.com",
+   "description": "eg: https://9t9it.com",
    "fieldname": "woocommerce_url",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Shop URL",
+   "label": "WooCommerce Website URL",
    "reqd": 1
   },
   {
@@ -128,12 +128,12 @@
   {
    "fieldname": "api_key",
    "fieldtype": "Data",
-   "label": "API Key"
+   "label": "API Consumer Key"
   },
   {
    "fieldname": "api_secret",
    "fieldtype": "Password",
-   "label": "API Secret"
+   "label": "API Consumer Secret"
   },
   {
    "fieldname": "webhook_address",
@@ -153,7 +153,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "Sync Item Price, from seleted Price List with woocommerce",
+   "description": "Select price list to sync with WooCommerce",
    "fieldname": "price_list",
    "fieldtype": "Link",
    "label": "Price List",
@@ -163,7 +163,7 @@
    "default": "0",
    "fieldname": "if_not_exists_create_item_to_woocommerce",
    "fieldtype": "Check",
-   "label": "If item does not exist, create item in woocommerce"
+   "label": "If item does not exist, create item on WooCommerce"
   },
   {
    "default": "0",
@@ -182,14 +182,14 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "If woocommerce not contains a customer in Order, then while syncing Orders, the system will consider default customer for order",
+   "description": "If WooCommerce sales is on Guest customer then while syncing orders, ERPNext will use selected customer for order creation",
    "fieldname": "default_customer",
    "fieldtype": "Link",
    "label": "Default Customer",
    "options": "Customer"
   },
   {
-   "description": "Customer Group will set to selected group while syncing customers from woocommerce",
+   "description": "Customer Group will set to selected group while syncing customers from WooCommerce",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "label": "Customer Group",
@@ -206,7 +206,7 @@
    "options": "Company"
   },
   {
-   "description": "Cash Account will used for Sales Invoice creation",
+   "description": "Account to be used for Sales Invoice creation",
    "fieldname": "cash_bank_account",
    "fieldtype": "Link",
    "label": "Cash/Bank Account",
@@ -215,7 +215,7 @@
   {
    "fieldname": "fee_account",
    "fieldtype": "Link",
-   "label": "Woocommerce Fee Account",
+   "label": "WooCommerce Fee Account",
    "options": "Account",
    "reqd": 1
   },
@@ -237,14 +237,14 @@
    "options": "Cost Center"
   },
   {
-   "description": "Sync Item Quantity, from seleted Warehouse with woocommerce",
+   "description": "Set to sync item quantity from selected Warehouse to WooCommerce",
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
   },
   {
-   "description": "To sync Item Quantity, from more than one Warehouse with woocommerce, use the following table (optionaly)",
+   "description": "(Optional) Set multiple warehouse to sync item quantity to WooCommerce. Not Recommended, use with caution",
    "fieldname": "warehouses",
    "fieldtype": "Table",
    "label": "Warehouses",
@@ -257,7 +257,7 @@
   {
    "fieldname": "weight_unit",
    "fieldtype": "Link",
-   "label": "Woocommerce Weight unit",
+   "label": "(Optional) WooCommerce weight unit",
    "options": "UOM"
   },
   {
@@ -267,7 +267,7 @@
   {
    "fieldname": "dimensions_unit",
    "fieldtype": "Link",
-   "label": "Woocommerce Dimensions unit",
+   "label": "(Optional) WooCommerce dimensions UOM",
    "options": "UOM"
   },
   {
@@ -277,12 +277,12 @@
   {
    "fieldname": "html_16",
    "fieldtype": "HTML",
-   "options": "Map woocommerce Tax / Shipping to ERPNext Account"
+   "options": "Map WooCommerce Tax / Shipping to ERPNext Account"
   },
   {
    "fieldname": "taxes",
    "fieldtype": "Table",
-   "label": "woocommerce Tax Account",
+   "label": "WooCommerce Tax Account",
    "options": "woocommerce Tax Account"
   },
   {
@@ -313,7 +313,7 @@
    "default": "0",
    "fieldname": "sync_delivery_note",
    "fieldtype": "Check",
-   "label": "Import Delivery Notes from woocommerce on Shipment"
+   "label": "Import delivery notes from WooCommerce shipment"
   },
   {
    "depends_on": "eval:doc.sync_delivery_note==1",
@@ -325,7 +325,7 @@
    "default": "0",
    "fieldname": "sync_sales_invoice",
    "fieldtype": "Check",
-   "label": "Import Sales Invoice from woocommerce if Payment is marked"
+   "label": "Import Sales Invoice from WooCommerce if payment has been made"
   },
   {
    "depends_on": "eval:doc.sync_sales_invoice==1",
@@ -347,17 +347,17 @@
   },
   {
    "default": "1500",
-   "description": "Timeout for sync background process",
+   "description": "Timeout for background sync process",
    "fieldname": "sync_timeout",
    "fieldtype": "Int",
-   "label": "Sync timeout"
+   "label": "Sync Timeout"
   },
   {
    "default": "0",
    "depends_on": "eval:doc.sync_items_from_woocommerce_to_erp==1",
    "fieldname": "sync_item_qty_from_erpnext_to_woocommerce",
    "fieldtype": "Check",
-   "label": "Sync item QTY from ERPNext to WooCommerce"
+   "label": "Sync item quantity from ERPNext to WooCommerce"
   },
   {
    "fieldname": "attribute_for_uom",
@@ -367,7 +367,7 @@
   {
    "fieldname": "item_code_based_on",
    "fieldtype": "Select",
-   "label": "Item code based on..",
+   "label": "Item code based on",
    "options": "WooCommerce ID\nWooCommerce ID + Name\nWooCommerce Name\nRandom Hash\nNaming Series",
    "reqd": 1
   },
@@ -381,13 +381,13 @@
    "default": "0",
    "fieldname": "rewrite_stock_uom_from_wc_unit",
    "fieldtype": "Check",
-   "label": "rewrite stock uom from wc unit"
+   "label": "Rewrite stock UOM from WooCommerce UOM"
   },
   {
    "fieldname": "woocommerce_so_status",
    "fieldtype": "Table",
-   "label": "WooCommerce SO Status for Import",
-   "options": "WooCommerce SO Status"
+   "label": "WooCommerce Sales Order status for import",
+   "options": "WooCommerce Sales Order Status"
   },
   {
    "default": "0",
