@@ -1,19 +1,13 @@
-## ERPNext WooCommerce Connector
+ERPNext WooCommerce Connector
+WooCommerce connector app for ERPNext. This connector allows  synchronisation of items, stock, customers, addresses, sales orders, sales invoices and payment entries between WooCommerce instance & ERPNext. It requires the Frappe Framework and ERPNext (https://erpnext.com/).
 
-WooCommerce connector for ERPNext
-
-This connector allows the synchronisation of items, stock, customers, addresses, sales orders, sales invoices and payment entries to a WooCommerce instance.
-
-It requires the Frappe Framework and [ERPNext](https://erpnext.org).
-
-#### License
-
-AGPL
+#### License AGPL
 
 #### Installation
-
-On the ERPNext server, run
+SSH into ERPNext server and follow below commands
 
     $ cd /home/frappe/frappe-bench
-	$ bench get-app https://github.com/libracore/woocommerceconnector.git
+	$ bench get-app https://github.com/muzzy73/woocommerceconnector.git
 	$ bench install-app woocommerceconnector
+	$ bench migrate
+	$ bench clear-cache
