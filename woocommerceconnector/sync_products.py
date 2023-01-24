@@ -303,7 +303,7 @@ def create_attribute(woocommerce_item):
                     item_attr = set_new_attribute_values(item_attr, attr.get("options"))
                     if len(item_attr.item_attribute_values) > old_len:    # only save item attributes if they have changed
                         item_attr.save()
-            if len(attr.get("options") > 0 
+            if len(attr.get("options")) > 0 
                 if len(attr.get("options")[0]) > 140:
                     attribute_value = attr.get("options")[0][:140]
                 else:
