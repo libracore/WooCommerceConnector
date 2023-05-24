@@ -407,12 +407,13 @@
    "fieldname": "shipping_income_account",
    "fieldtype": "Link",
    "label": "Shipping Income Account",
-   "options": "Account"
+   "options": "Account",
+   "reqd": 1
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-05-24 17:00:15.412464",
+ "modified": "2023-05-25 01:30:27.728902",
  "modified_by": "Administrator",
  "module": "WooCommerceConnector",
  "name": "WooCommerce Config",
