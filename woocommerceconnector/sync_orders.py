@@ -273,7 +273,7 @@ def get_customer_address_from_order(type, woocommerce_order, customer):
 
         except Exception as e:
             make_woocommerce_log(title=e, status="Error", method="create_customer_address", message=frappe.get_traceback(),
-                    request_data=woocommerce_customer, exception=True)
+                    request_data=woocommerce_order, exception=True)
 
     return address_name
 

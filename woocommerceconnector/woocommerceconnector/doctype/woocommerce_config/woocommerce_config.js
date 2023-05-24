@@ -59,6 +59,17 @@ frappe.ui.form.on("WooCommerce Config", {
             }
         }
 
+        frm.fields_dict["shipping_income_account"].get_query = function(doc) {
+            return {
+                filters: [
+                    ["Account", "account_type", "in", ["Income Account"]],
+                    ["Account", "root_type", "=", "Income"],
+                    ["Account", "is_group", "=",0],
+                    ["Account", "company", "=", doc.company]
+                ]
+            }
+        }
+
         frm.fields_dict["cost_center"].get_query = function(doc) {
             return {
                 filters:{
