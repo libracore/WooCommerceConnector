@@ -42,20 +42,24 @@ def sync_woocommerce_items(warehouse, woocommerce_item_list):
                     request_data=woocommerce_item, exception=True)
 
 def make_item(warehouse, woocommerce_item, woocommerce_item_list):
-    
-    if has_variants(woocommerce_item):
-        #replace woocommerce variants id array with actual variant info
-        woocommerce_item['variants'] = get_woocommerce_item_variants(woocommerce_item.get("id"))
+    try:
+        if has_variants(woocommerce_item):
+            #replace woocommerce variants id array with actual variant info
+            woocommerce_item['variants'] = get_woocommerce_item_variants(woocommerce_item.get("id"))
+            
+            attributes = create_attribute(woocommerce_item)
+            create_item(woocommerce_item, warehouse, 1, attributes=attributes, woocommerce_item_list=woocommerce_item_list)
+            create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_variants_attr_list, woocommerce_item_list)
+
+        else:
+            """woocommerce_item["variant_id"] = woocommerce_item['variants'][0]["id"]"""
+            attributes = create_attribute(woocommerce_item)
+            create_item(woocommerce_item, warehouse, attributes=attributes, woocommerce_item_list=woocommerce_item_list)
+    except frappe.exceptions.DuplicateEntryError:
+        #catch already existing error 
+        #dont create the item
+        return
         
-        attributes = create_attribute(woocommerce_item)
-        create_item(woocommerce_item, warehouse, 1, attributes=attributes, woocommerce_item_list=woocommerce_item_list)
-        create_item_variants(woocommerce_item, warehouse, attributes, woocommerce_variants_attr_list, woocommerce_item_list)
-
-    else:
-        """woocommerce_item["variant_id"] = woocommerce_item['variants'][0]["id"]"""
-        attributes = create_attribute(woocommerce_item)
-        create_item(woocommerce_item, warehouse, attributes=attributes, woocommerce_item_list=woocommerce_item_list)
-
 def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, variant_of=None, woocommerce_item_list=[], template_item=None):
     woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
     valuation_method = woocommerce_settings.get("valuation_method")

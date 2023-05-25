@@ -104,7 +104,12 @@ def create_customer_address(customer, woocommerce_customer):
                     request_data=woocommerce_customer, exception=True)
 
     if shipping_address:
-        country = get_country_name(shipping_address.get("country"))
+        frappe.log_error('shipping',shipping_address)
+        country = shipping_address.get("country", "Qatar")
+        if country == None:
+            country = "Qatar"
+        country = get_country_name(country)
+        
         if not frappe.db.exists("Country", country):
             country = "Switzerland"
         try :

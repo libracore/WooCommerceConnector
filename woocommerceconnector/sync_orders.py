@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import json
 import frappe
 from frappe import _
 from .exceptions import woocommerceError
@@ -239,13 +240,16 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
     frappe.db.commit()
     make_woocommerce_log(title="create sales order", status="Success", method="create_sales_order",
-            message= "create sales_order",request_data=woocommerce_order, exception=False)
+            message= "create sales_order",request_data=json.dumps(woocommerce_order,indent=2), exception=False)
     return so
 
 def get_customer_address_from_order(type, woocommerce_order, customer):
     address_record = woocommerce_order[type.lower()]
     address_name = frappe.db.get_value("Address", {"woocommerce_address_id": type, "address_line1": address_record.get("address_1"), "woocommerce_company_name": address_record.get("company") or ''}, "name")
     if not address_name:
+        country = address_record.get('country')
+        if country == None:
+            country = "Qatar"
         country = get_country_name(address_record.get("country"))
         if not frappe.db.exists("Country", country):
             country = "Switzerland"
