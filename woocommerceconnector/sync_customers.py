@@ -34,7 +34,8 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         
     try:
         # try to match territory
-        country_name = get_country_name(woocommerce_customer["billing"]["country"])
+        country_code = woocommerce_customer["billing"]["country"] or "CH"
+        country_name = get_country_name(country_code)
         debug_match_code = ""
         if frappe.db.exists("Territory", country_name):
             territory = country_name
@@ -45,6 +46,7 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
         make_woocommerce_log(title="Territory detection " + debug_match_code, status="Success", method="create_customer", 
             message="country_code: {0}, country_matches: {1}, territory: {2}".format(woocommerce_customer["billing"]["country"], country_name, territory), 
             request_data=woocommerce_customer, exception=True)
+            
         customer = frappe.get_doc({
             "doctype": "Customer",
             "name": woocommerce_customer.get("id"),
@@ -53,8 +55,40 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
             "sync_with_woocommerce": 0,
             "customer_group": woocommerce_settings.customer_group,
             "territory": territory,
-            "customer_type": _("Individual")
+            "customer_type": _("Individual"),
+            "default_currency": woocommerce_customer.get("currency")
         })
+        
+        # patterns
+        if country_code.lower() == "ch":
+            # switzerland
+            customer.steuerregion = "DRL"
+            customer.default_price_list = "Selling RP CHF"
+            customer.language = "de"
+            
+        elif country_code.lower() in ["de", "at"]:
+            # de, at
+            customer.steuerregion = "AT"
+            customer.default_price_list = "Selling RP EUR"
+            customer.language = "de"
+            
+        elif country_code.lower() in ["be", "bg", "cz", "dk", "ee", "ie", "el", "es", "fr", "hr", "it", "cy", "lv", "lt", "lu", "hu", "mt", "nl", "pl", "pt", "ro", "sl", "sk", "fi", "se"]:
+            # rest EU
+            customer.steuerregion = "EU"
+            customer.default_price_list = "Selling RP EUR"
+            customer.language = "en"
+            
+        elif country_code.lower() in ["us"]:
+            # us
+            customer.steuerregion = "DRL"
+            customer.default_price_list = "Selling RP USD"
+            customer.language = "en-US"
+        else:
+            # rest of the world
+            customer.steuerregion = "DRL"
+            customer.default_price_list = "Selling RP USD"
+            customer.language = "en-US"
+            
         customer.flags.ignore_mandatory = True
         customer.insert()
         
@@ -165,7 +199,7 @@ def create_customer_contact(customer, woocommerce_customer):
                                                   'email_id': woocommerce_customer["billing"]["email"]},
                                          fields=['name'])
         if not contact_matches:
-            frappe.get_doc({
+            contact = frappe.get_doc({
                 "doctype": "Contact",
                 "first_name": woocommerce_customer["billing"]["first_name"],
                 "last_name": woocommerce_customer["billing"]["last_name"],
@@ -177,7 +211,8 @@ def create_customer_contact(customer, woocommerce_customer):
                 }],
                 "email_ids": email_ids,
                 "phone_nos": phone_nos
-            }).insert()
+            })
+            contact.insert()
         else:
             # link existing contact
             contact = frappe.get_doc("Contact", contact_matches[0]['name'])
@@ -186,7 +221,15 @@ def create_customer_contact(customer, woocommerce_customer):
                     "link_name": customer.name
                 })
             contact.save()
-
+        
+        # make customer's primary contact
+        frappe.db.commit()
+        customer_doc = frappe.get_doc("Customer", customer.name)
+        if not customer_doc.customer_primary_contact:
+            customer_doc.customer_primary_contact = contact.name
+            customer_doc.save()
+            frappe.db.commit()
+            
     except Exception as e:
         make_woocommerce_log(title=e, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
                 request_data=woocommerce_customer, exception=True)
