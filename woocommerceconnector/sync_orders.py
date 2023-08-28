@@ -4,7 +4,7 @@ from frappe import _
 from .exceptions import woocommerceError
 from .utils import make_woocommerce_log
 from .sync_products import make_item
-from .sync_customers import create_customer, create_customer_address, create_customer_contact
+from .sync_customers import create_customer, create_customer_address, create_customer_contact, pattern_matching
 from frappe.utils import flt, nowdate, cint
 from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
@@ -133,6 +133,9 @@ def create_new_customer_of_guest(woocommerce_order):
             "territory": territory,
             "customer_type": _("Individual")
         })
+        
+        customer = pattern_matching(customer, country_code)
+        
         customer.flags.ignore_mandatory = True
         customer.insert()
         

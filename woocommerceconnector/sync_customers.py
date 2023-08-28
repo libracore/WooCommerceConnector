@@ -59,35 +59,7 @@ def create_customer(woocommerce_customer, woocommerce_customer_list):
             "default_currency": woocommerce_customer.get("currency")
         })
         
-        # patterns
-        if country_code.lower() == "ch":
-            # switzerland
-            customer.steuerregion = "DRL"
-            customer.default_price_list = "Selling RP CHF"
-            customer.language = "de"
-            
-        elif country_code.lower() in ["de", "at"]:
-            # de, at
-            customer.steuerregion = "AT"
-            customer.default_price_list = "Selling RP EUR"
-            customer.language = "de"
-            
-        elif country_code.lower() in ["be", "bg", "cz", "dk", "ee", "ie", "el", "es", "fr", "hr", "it", "cy", "lv", "lt", "lu", "hu", "mt", "nl", "pl", "pt", "ro", "sl", "sk", "fi", "se"]:
-            # rest EU
-            customer.steuerregion = "EU"
-            customer.default_price_list = "Selling RP EUR"
-            customer.language = "en"
-            
-        elif country_code.lower() in ["us"]:
-            # us
-            customer.steuerregion = "DRL"
-            customer.default_price_list = "Selling RP USD"
-            customer.language = "en-US"
-        else:
-            # rest of the world
-            customer.steuerregion = "DRL"
-            customer.default_price_list = "Selling RP USD"
-            customer.language = "en-US"
+        customer = pattern_matching(customer, country_code)
             
         customer.flags.ignore_mandatory = True
         customer.insert()
@@ -240,3 +212,42 @@ def get_country_name(code):
     for _coutry_name in frappe.db.sql(coutry_names, as_dict=1):
         coutry_name = _coutry_name.country_name
     return coutry_name
+
+def pattern_matching(customer, country_code):
+    # patterns
+    if country_code.lower() == "ch":
+        # switzerland
+        customer.steuerregion = "DRL"
+        customer.default_price_list = "Selling RP CHF"
+        customer.language = "de"
+        customer.default_currency = "CHF"
+        
+    elif country_code.lower() in ["de", "at"]:
+        # de, at
+        customer.steuerregion = "AT"
+        customer.default_price_list = "Selling RP EUR"
+        customer.language = "de"
+        customer.default_currency = "EUR"
+        
+    elif country_code.lower() in ["be", "bg", "cz", "dk", "ee", "ie", "el", "es", "fr", "hr", "it", "cy", "lv", "lt", "lu", "hu", "mt", "nl", "pl", "pt", "ro", "sl", "sk", "fi", "se"]:
+        # rest EU
+        customer.steuerregion = "EU"
+        customer.default_price_list = "Selling RP EUR"
+        customer.language = "en"
+        customer.default_currency = "EUR"
+        
+    elif country_code.lower() in ["us"]:
+        # us
+        customer.steuerregion = "DRL"
+        customer.default_price_list = "Selling RP USD"
+        customer.language = "en-US"
+        customer.default_currency = "USD"
+        
+    else:
+        # rest of the world
+        customer.steuerregion = "DRL"
+        customer.default_price_list = "Selling RP USD"
+        customer.language = "en-US"
+        customer.default_currency = "USD"
+        
+    return customer
