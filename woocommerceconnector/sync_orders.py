@@ -111,6 +111,7 @@ def create_new_customer_of_guest(woocommerce_order):
         
     try:
         # try to match territory
+        country_code = woocommerce_order["billing"]["country"] or "CH"
         country_name = get_country_name(woocommerce_order["billing"]["country"])
         debug_match_code = ""
         if frappe.db.exists("Territory", country_name):
@@ -120,7 +121,7 @@ def create_new_customer_of_guest(woocommerce_order):
             territory = frappe.utils.nestedset.get_root_of("Territory")
             debug_match_code = "T2"
         make_woocommerce_log(title="Territory detection " + debug_match_code, status="Success", method="create_new_customer_of_guest", 
-            message="country_code: {0}, country_matches: {1}, territory: {2}".format(woocommerce_order["billing"]["country"], country_name, territory), 
+            message="country_code: {0}, country_matches: {1}, territory: {2}".format(country_code, country_name, territory), 
             request_data=woocommerce_order, exception=True)
         
         customer = frappe.get_doc({
