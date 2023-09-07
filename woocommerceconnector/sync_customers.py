@@ -4,7 +4,7 @@ from frappe import _
 import requests.exceptions
 from .woocommerce_requests import get_woocommerce_customers, post_request, put_request
 from .utils import make_woocommerce_log
-
+import datetime
 def sync_customers():
     woocommerce_customer_list = []
     sync_woocommerce_customers(woocommerce_customer_list)
@@ -184,7 +184,12 @@ def create_customer_contact(customer, woocommerce_customer):
                 "email_ids": email_ids,
                 "phone_nos": phone_nos
             })
-            contact.insert()
+            try:
+                contact.insert()
+            except:
+                # check and prevent duplicate error
+                contact.name += datetime.datetime.today().strftime("%Y-%m-%d")
+                contact.insert()
         else:
             # link existing contact
             contact = frappe.get_doc("Contact", contact_matches[0]['name'])
