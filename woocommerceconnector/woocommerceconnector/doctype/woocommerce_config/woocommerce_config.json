@@ -291,15 +291,13 @@
     "fieldname": "default_tax_account", 
     "fieldtype": "Link", 
     "label": "Default Tax Account", 
-    "options": "Account", 
-    "reqd": 1
+    "options": "Account"
   },
   {
     "fieldname": "default_shipping_account", 
     "fieldtype": "Link", 
     "label": "Default Shipping Account", 
-    "options": "Account", 
-    "reqd": 1
+    "options": "Account"
   },
   {
    "fieldname": "section_tax_rules",
