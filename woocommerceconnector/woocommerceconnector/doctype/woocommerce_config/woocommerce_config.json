@@ -48,6 +48,8 @@
   "section_break_31",
   "html_16",
   "taxes",
+  "default_tax_account",
+  "default_shipping_account",
   "section_tax_rules",
   "tax_rules",
   "section_break_25",
@@ -284,6 +286,20 @@
    "fieldtype": "Table",
    "label": "woocommerce Tax Account",
    "options": "woocommerce Tax Account"
+  },
+  {
+    "fieldname": "default_tax_account", 
+    "fieldtype": "Link", 
+    "label": "Default Tax Account", 
+    "options": "Account", 
+    "reqd": 1
+  },
+  {
+    "fieldname": "default_shipping_account", 
+    "fieldtype": "Link", 
+    "label": "Default Shipping Account", 
+    "options": "Account", 
+    "reqd": 1
   },
   {
    "fieldname": "section_tax_rules",
