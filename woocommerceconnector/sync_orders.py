@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from types import NoneType
 import frappe
 from frappe import _
 from .exceptions import woocommerceError
@@ -9,7 +10,6 @@ from .woocommerce_requests import get_request, get_woocommerce_orders, get_wooco
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
 import requests.exceptions
 import base64, requests, datetime, os
-
 
 def sync_orders():
     sync_woocommerce_orders()
@@ -357,7 +357,7 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
         
         taxes.append({
             "charge_type": "Actual",
-            "account_head": get_tax_account_head(woocommerce_tax),
+            "account_head": get_tax_account_head(woocommerce_tax, woocommerce_settings.default_tax_account),
             "description": "{0} - {1}%".format(name, rate),
             "rate": rate,
             "tax_amount": flt(tax.get("tax_total") or 0) + flt(tax.get("shipping_tax_total") or 0), 
@@ -396,7 +396,7 @@ def update_taxes_with_shipping_lines(taxes, shipping_lines, woocommerce_settings
         #
         taxes.append({
             "charge_type": "Actual",
-            "account_head": get_shipping_account_head(shipping_charge),
+            "account_head": get_shipping_account_head(shipping_charge, woocommerce_settings.default_shipping_account),
             "description": shipping_charge["method_title"],
             "tax_amount": shipping_charge["total"],
             "cost_center": woocommerce_settings.cost_center
@@ -406,11 +406,15 @@ def update_taxes_with_shipping_lines(taxes, shipping_lines, woocommerce_settings
 
 
 
-def get_shipping_account_head(shipping):
-        shipping_title = shipping.get("method_title").encode("utf-8")
+def get_shipping_account_head(shipping, default):
+        if shipping.get("method_title"):
+            shipping_title = shipping.get("method_title").encode("utf-8")
 
-        shipping_account =  frappe.db.get_value("woocommerce Tax Account", \
-                {"parent": "WooCommerce Config", "woocommerce_tax": shipping_title}, "tax_account")
+            shipping_account =  frappe.db.get_value("woocommerce Tax Account", \
+                    {"parent": "WooCommerce Config", "woocommerce_tax": shipping_title}, "tax_account")
+
+        if not 'shipping_account' in locals():
+            shipping_account = default
 
         if not shipping_account:
                 frappe.throw("Tax Account not specified for woocommerce shipping method  {0}".format(shipping.get("method_title")))
@@ -418,11 +422,15 @@ def get_shipping_account_head(shipping):
         return shipping_account
 
 
-def get_tax_account_head(tax):
-    tax_title = tax.get("name").encode("utf-8") or tax.get("method_title").encode("utf-8")
+def get_tax_account_head(tax, default):
+    if tax.get("name"):
+        tax_title = tax.get("name").encode("utf-8") or tax.get("method_title").encode("utf-8")
 
-    tax_account =  frappe.db.get_value("woocommerce Tax Account", \
-        {"parent": "WooCommerce Config", "woocommerce_tax": tax_title}, "tax_account")
+        tax_account =  frappe.db.get_value("woocommerce Tax Account", \
+            {"parent": "WooCommerce Config", "woocommerce_tax": tax_title}, "tax_account")
+
+    if not 'tax_account' in locals():
+        tax_account = default
 
     if not tax_account:
         frappe.throw("Tax Account not specified for woocommerce Tax {0}".format(tax.get("name")))
