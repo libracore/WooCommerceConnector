@@ -61,7 +61,7 @@ frappe.ui.form.on("woocommerce Settings", "refresh", function(frm){
 		});
 
 		dialog.fields_dict.set_last_sync_date.$input.click(function() {
-			args = dialog.get_values();
+			var args = dialog.get_values();
 			if(!args) return;
 
 			frm.set_value("last_sync_datetime", args['last_sync_date']);
