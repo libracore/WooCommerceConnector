@@ -633,7 +633,7 @@ def update_item_stock_qty():
     # find stock movement offset: if not set, revert to 2000, otherwise, take beginning of the current day
     date = "2000-01-01"
     if woocommerce_settings.last_sync_datetime:
-        date = woocommerce_settings.last_sync_datetime.date()
+        date = ("{0}".format(woocommerce_settings.last_sync_datetime))[:10]
         
     items_with_stock_movements = frappe.db.sql("""
         SELECT *
