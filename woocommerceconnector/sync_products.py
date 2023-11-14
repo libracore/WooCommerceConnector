@@ -630,9 +630,30 @@ def trigger_update_item_stock(doc, method):
 def update_item_stock_qty():
     woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
     
-    for item in frappe.get_all("Item", fields=["item_code"], filters={"sync_qty_with_woocommerce": '1', "disabled": ("!=", 1)}):
+    # find stock movement offset: if not set, revert to 2000, otherwise, take beginning of the current day
+    date = "2000-01-01"
+    if woocommerce_settings.last_sync_datetime:
+        date = woocommerce_settings.last_sync_datetime.date()
+        
+    items_with_stock_movements = frappe.db.sql("""
+        SELECT *
+        FROM (
+            SELECT 
+                `tabItem`.`item_code`,
+                (SELECT CONCAT(`tabStock Ledger Entry` .`posting_date`, " ", `tabStock Ledger Entry` .`posting_time`)
+                 FROM `tabStock Ledger Entry` 
+                 WHERE `tabStock Ledger Entry`.`item_code` = `tabItem`.`item_code` 
+                 ORDER BY `tabStock Ledger Entry`.`posting_date` DESC, `tabStock Ledger Entry`.`posting_time` DESC
+                 LIMIT 1) AS `last_qty_change`
+            FROM `tabItem`
+            WHERE `tabItem`.`disabled` = 0
+              AND `tabItem`.`sync_qty_with_woocommerce` = 1
+        ) AS `raw`
+        WHERE `raw`.`last_qty_change` > "{date}";
+    """.format(date=date), as_dict=True)
+    for item in items_with_stock_movements:
         try:
-            update_item_stock(item.item_code, woocommerce_settings)
+            update_item_stock(item.get('item_code'), woocommerce_settings)
         except woocommerceError as e:
             make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_items", message=frappe.get_traceback(),
                 request_data=item, exception=True)

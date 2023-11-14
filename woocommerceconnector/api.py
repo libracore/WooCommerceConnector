@@ -44,7 +44,7 @@ def sync_woocommerce_resources():
 			sync_orders()
 			# close_synced_woocommerce_orders() # DO NOT GLOBALLY CLOSE
 			update_item_stock_qty()
-			#frappe.db.set_value("woocommerce Settings", None, "last_sync_datetime", now_time)
+			frappe.db.set_value("woocommerce Settings", "woocommerce Settings", "last_sync_datetime", now_time)
 			
 			make_woocommerce_log(title="Sync Completed", status="Success", method=frappe.local.form_dict.cmd, 
 				message= "Updated {customers} customer(s), {products} item(s), {orders} order(s)".format(**frappe.local.form_dict.count_dict))
