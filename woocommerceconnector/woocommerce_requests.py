@@ -6,6 +6,7 @@ from .exceptions import woocommerceError
 from frappe.utils import get_request_session, get_datetime, get_time_zone
 from woocommerce import API
 from .utils import make_woocommerce_log
+from frappe.utils import cint
 
 _per_page=100
 
@@ -38,7 +39,7 @@ def get_request_request(path, settings=None):
                 url=settings['woocommerce_url'],
                 consumer_key=settings['api_key'],
                 consumer_secret=settings['api_secret'],
-                verify_ssl=settings['verify_ssl'],
+                verify_ssl=True if cint(settings['verify_ssl']) else False,
                 wp_api=True,
                 version="wc/v2",
                 timeout=1000
@@ -58,7 +59,7 @@ def post_request(path, data):
                 url=settings['woocommerce_url'],
                 consumer_key=settings['api_key'],
                 consumer_secret=settings['api_secret'],
-                verify_ssl=settings['verify_ssl'],
+                verify_ssl=True if cint(settings['verify_ssl']) else False,
                 wp_api=True,
                 version="wc/v2",
                 timeout=1000
@@ -76,7 +77,7 @@ def put_request(path, data):
                 url=settings['woocommerce_url'],
                 consumer_key=settings['api_key'],
                 consumer_secret=settings['api_secret'],
-                verify_ssl=settings['verify_ssl'],
+                verify_ssl=True if cint(settings['verify_ssl']) else False,
                 wp_api=True,
                 version="wc/v2",
                 timeout=5000
@@ -94,7 +95,7 @@ def delete_request(path):
                 url=settings['woocommerce_url'],
                 consumer_key=settings['api_key'],
                 consumer_secret=settings['api_secret'],
-                verify_ssl=settings['verify_ssl'],
+                verify_ssl=True if cint(settings['verify_ssl']) else False,
                 wp_api=True,
                 version="wc/v2",
                 timeout=1000
