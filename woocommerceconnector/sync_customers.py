@@ -247,6 +247,10 @@ def pattern_matching(customer, country_code):
         customer.default_price_list = "Selling RP USD"
         customer.language = "en-US"
         customer.default_currency = "USD"
+        customer.append("accounts", {
+            'company': "rubirosa management GmbH",
+            'account': "1105 - Forderungen aus Lieferungen USD - RMG"
+        })
         
     else:
         # rest of the world
