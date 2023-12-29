@@ -132,7 +132,7 @@ def create_new_customer_of_guest(woocommerce_order):
             "sync_with_woocommerce": 0,
             "customer_group": woocommerce_settings.customer_group,
             "territory": territory,
-            "customer_type": _("Individual")
+            "customer_type": "Individual"
         })
         
         customer = pattern_matching(customer, country_code)
