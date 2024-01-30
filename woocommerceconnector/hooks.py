@@ -69,11 +69,11 @@ after_install = "woocommerceconnector.after_install.create_weight_uom"
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	"Bin": {
-		"on_update": "woocommerceconnector.sync_products.trigger_update_item_stock"
-	}
-}
+#doc_events = {
+#	"Bin": {
+#		"on_update": "woocommerceconnector.sync_products.trigger_update_item_stock"
+#	}
+#}
 
 # Scheduled Tasks
 # ---------------
