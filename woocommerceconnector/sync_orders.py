@@ -35,7 +35,7 @@ def sync_woocommerce_orders():
                         if e.args and e.args[0] and e.args[0].startswith("402"):
                             raise e
                         else:
-                            make_woocommerce_log(title=e.message, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
+                            make_woocommerce_log(title=e, status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
                                 request_data=woocommerce_order, exception=True)
             # close this order as synced
             close_synced_woocommerce_order(woocommerce_order.get("id"))
@@ -132,7 +132,7 @@ def create_new_customer_of_guest(woocommerce_order):
             "sync_with_woocommerce": 0,
             "customer_group": woocommerce_settings.customer_group,
             "territory": territory,
-            "customer_type": _("Individual")
+            "customer_type": "Individual"
         })
         
         customer = pattern_matching(customer, country_code)
@@ -153,7 +153,7 @@ def create_new_customer_of_guest(woocommerce_order):
         if e.args[0] and e.args[0].startswith("402"):
             raise e
         else:
-            make_woocommerce_log(title=e.message, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
+            make_woocommerce_log(title=e, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
                 request_data=woocommerce_order, exception=True)
         
 def get_country_name(code):
@@ -320,7 +320,7 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
         name = woocommerce_tax.get("name")
         
         taxes.append({
-            "charge_type": _("Actual"),
+            "charge_type": "Actual",
             "account_head": get_tax_account_head(woocommerce_tax),
             "description": "{0} - {1}%".format(name, rate),
             "rate": rate,
@@ -336,7 +336,7 @@ def get_order_taxes(woocommerce_order, woocommerce_settings):
 def update_taxes_with_fee_lines(taxes, fee_lines, woocommerce_settings):
     for fee_charge in fee_lines:
         taxes.append({
-            "charge_type": _("Actual"),
+            "charge_type": "Actual",
             "account_head": woocommerce_settings.fee_account,
             "description": fee_charge["name"],
             "tax_amount": fee_charge["amount"],
@@ -349,7 +349,7 @@ def update_taxes_with_shipping_lines(taxes, shipping_lines, woocommerce_settings
     for shipping_charge in shipping_lines:
         #
         taxes.append({
-            "charge_type": _("Actual"),
+            "charge_type": "Actual",
             "account_head": get_shipping_account_head(shipping_charge),
             "description": shipping_charge["method_title"],
             "tax_amount": shipping_charge["total"],
@@ -404,7 +404,7 @@ def close_synced_woocommerce_order(wooid):
         put_request("orders/{0}".format(wooid), order_data)
             
     except requests.exceptions.HTTPError as e:
-        make_woocommerce_log(title=e.message, status="Error", method="close_synced_woocommerce_order", message=frappe.get_traceback(),
+        make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_order", message=frappe.get_traceback(),
             request_data=woocommerce_order, exception=True)
 
 # this feature tries to match a repeating guest customer to an existing ERPNext customer
