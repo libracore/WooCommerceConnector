@@ -627,12 +627,12 @@ def trigger_update_item_stock(doc, method):
         if woocommerce_settings.woocommerce_url and woocommerce_settings.enable_woocommerce:
             update_item_stock(doc.item_code, woocommerce_settings, doc)
 
-def update_item_stock_qty():
+def update_item_stock_qty(force=False):
     woocommerce_settings = frappe.get_doc("woocommerce Settings", "woocommerce Settings")
     
     # find stock movement offset: if not set, revert to 2000, otherwise, take beginning of the current day
     date = "2000-01-01"
-    if woocommerce_settings.last_sync_datetime:
+    if not force and woocommerce_settings.last_sync_datetime:
         date = ("{0}".format(woocommerce_settings.last_sync_datetime))[:10]
         
     items_with_stock_movements = frappe.db.sql("""
