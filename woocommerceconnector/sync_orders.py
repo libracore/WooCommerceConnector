@@ -53,8 +53,8 @@ def valid_customer_and_product(woocommerce_order):
     if woocommerce_order.get("status").lower() == "cancelled":
         return False
     warehouse = frappe.get_doc("WooCommerce Config", "WooCommerce Config").warehouse
-	
-	# old function item based on sku
+    
+    # old function item based on sku
     # for item in woocommerce_order.get("line_items"):
         # if item.get("sku"):
             # if not frappe.db.get_value("Item", {"barcode": item.get("sku")}, "item_code"):
@@ -65,8 +65,8 @@ def valid_customer_and_product(woocommerce_order):
             # make_woocommerce_log(title="Item barcode missing in WooCommerce!", status="Error", method="valid_customer_and_product", message="Item barcode is missing in WooCommerce! The Order {0} will not be imported! For details of order see below".format(woocommerce_order.get("id")),
                 # request_data=woocommerce_order, exception=True)
             # return False
-			
-	# new function item based on product id
+            
+    # new function item based on product id
     for item in woocommerce_order.get("line_items"):
         if item.get("product_id"):
             if not frappe.db.get_value("Item", {"woocommerce_product_id": item.get("product_id")}, "item_code"):

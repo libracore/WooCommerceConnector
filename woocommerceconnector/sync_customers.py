@@ -96,7 +96,9 @@ def create_customer_address(customer, woocommerce_customer):
                 "links": [{
                     "link_doctype": "Customer",
                     "link_name": customer.name
-                }]
+                }],
+                "woocommerce_first_name": billing_address.get("first_name"),
+                "woocommerce_last_name": billing_address.get("last_name")
             }).insert()
 
         except Exception as e:
@@ -124,7 +126,9 @@ def create_customer_address(customer, woocommerce_customer):
                 "links": [{
                     "link_doctype": "Customer",
                     "link_name": customer.name
-                }]
+                }],
+                "woocommerce_first_name": shipping_address.get("first_name"),
+                "woocommerce_last_name": shipping_address.get("last_name")
             }).insert()
             
         except Exception as e:
