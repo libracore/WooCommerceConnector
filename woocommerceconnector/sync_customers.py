@@ -83,6 +83,7 @@ def create_customer_address(customer, woocommerce_customer):
             frappe.get_doc({
                 "doctype": "Address",
                 "woocommerce_address_id": "Billing",
+                "woocommerce_company_name": billing_address.get("company") or '',
                 "address_title": customer.name,
                 "address_type": "Billing",
                 "address_line1": billing_address.get("address_1") or "Address 1",
@@ -113,6 +114,7 @@ def create_customer_address(customer, woocommerce_customer):
             frappe.get_doc({
                 "doctype": "Address",
                 "woocommerce_address_id": "Shipping",
+                "woocommerce_company_name": shipping_address.get("company") or '',
                 "address_title": customer.name,
                 "address_type": "Shipping",
                 "address_line1": shipping_address.get("address_1") or "Address 1",

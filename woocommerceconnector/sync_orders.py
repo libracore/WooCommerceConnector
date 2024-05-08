@@ -267,7 +267,9 @@ def get_customer_address_from_order(type, woocommerce_order, customer):
                 "links": [{
                     "link_doctype": "Customer",
                     "link_name": customer
-                }]
+                }],
+                "woocommerce_first_name": address_record.get("first_name"),
+                "woocommerce_last_name": address_record.get("last_name")
             }).insert()
             address_name = address_name.name
 
