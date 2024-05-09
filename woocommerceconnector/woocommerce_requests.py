@@ -3,7 +3,7 @@ import frappe
 from frappe import _
 import json, math, time, pytz
 from .exceptions import woocommerceError
-from frappe.utils import get_request_session, get_datetime, get_time_zone
+from frappe.utils import get_request_session, get_datetime, get_system_timezone
 from woocommerce import API
 from .utils import make_woocommerce_log
 import requests
