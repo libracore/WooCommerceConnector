@@ -220,7 +220,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
         })
 
         so.flags.ignore_mandatory = True
-        frappe.log_error(so.as_dict(), "so")
+        
         # alle orders in ERP = submitted
         so.save(ignore_permissions=True)
         so.submit()
