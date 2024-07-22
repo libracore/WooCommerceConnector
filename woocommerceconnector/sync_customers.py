@@ -140,23 +140,28 @@ def create_customer_address(customer, woocommerce_customer):
 # TODO: email and phone into child table
 def create_customer_contact(customer, woocommerce_customer):
     try :
-        frappe.get_doc({
+        new_contact = frappe.get_doc({
             "doctype": "Contact",
             "first_name": woocommerce_customer["billing"]["first_name"],
             "last_name": woocommerce_customer["billing"]["last_name"],
-            "email_ids": [{
-                "email_id": woocommerce_customer["billing"]["email"],
-                "is_primary": 1
-            }],
-            "phone_nos": [{
-                "phone": woocommerce_customer["billing"]["phone"],
-                "is_primary_phone": 1
-            }],
             "links": [{
                 "link_doctype": "Customer",
                 "link_name": customer.name
             }]
-        }).insert()
+        })
+        
+        if woocommerce_customer["billing"]["email"]:
+            new_contact.append("email_ids", {
+                "email_id": woocommerce_customer["billing"]["email"],
+                "is_primary": 1
+            })
+            
+        if woocommerce_customer["billing"]["phone"]:
+            new_contact.append("phone_nos", {
+                "phone": woocommerce_customer["billing"]["phone"],
+                "is_primary_phone": 1
+            })
+        new_contact.insert()
 
     except Exception as e:
         make_woocommerce_log(title=e, status="Error", method="create_customer_contact", message=frappe.get_traceback(),
