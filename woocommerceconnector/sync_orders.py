@@ -149,7 +149,7 @@ def create_new_customer_of_guest(woocommerce_order):
         if e.args[0] and e.args[0].startswith("402"):
             raise e
         else:
-            make_woocommerce_log(title=e.message, status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
+            make_woocommerce_log(title="{0}".format(e), status="Error", method="create_new_customer_of_guest", message=frappe.get_traceback(),
                 request_data=woocommerce_order, exception=True)
         
 def get_country_name(code):
