@@ -162,7 +162,7 @@ def create_customer_contact(customer, woocommerce_customer):
         if woocommerce_customer["billing"]["phone"]:
             phone_nos.append({
                 "phone": woocommerce_customer["billing"]["phone"],
-                "is_primary_phone": 1
+                "is_primary_mobile_no": 1
             })
         # duplicate check before inserting
         contact_matches = frappe.get_all("Contact", 
