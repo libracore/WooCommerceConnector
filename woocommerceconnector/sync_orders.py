@@ -244,7 +244,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
 def get_customer_address_from_order(type, woocommerce_order, customer):
     address_record = woocommerce_order[type.lower()]
-    address_name = frappe.db.get_value("Address", {"woocommerce_address_id": type, "address_line1": address_record.get("address_1"), "woocommerce_company_name": address_record.get("company") or ''}, "name")
+    address_name = frappe.db.get_value("Address", {"woocommerce_address_id": type, "address_line1": address_record.get("address_1"), "address_line2": address_record.get("address_2") or '', "city": address_record.get("city") or "City", "state": address_record.get("state") or '', "pincode": address_record.get("postcode") or '', "woocommerce_company_name": address_record.get("company") or '', "woocommerce_first_name": address_record.get("first_name") or '', "woocommerce_last_name": address_record.get("last_name") or ''}, "name")
     if not address_name:
         country = get_country_name(address_record.get("country"))
         if not frappe.db.exists("Country", country):
